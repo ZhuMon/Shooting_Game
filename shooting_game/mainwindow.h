@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QGraphicsScene>
+#include <QGraphicsPixmapItem>
 
 namespace Ui {
 class MainWindow;
@@ -17,6 +19,9 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    QGraphicsScene *scene;
+    QGraphicsPixmapItem *player;
+
 };
 
 #endif // MAINWINDOW_H

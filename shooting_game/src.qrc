@@ -1,0 +1,6 @@
+
+<RCC>
+	<qresource prefix="/images">
+        	<file alias="player">plane.png</file>
+    	</qresource>
+</RCC>
