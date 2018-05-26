@@ -8,6 +8,7 @@
 #include <QTimer>
 
 #include <bullet.h>
+#include <player.h>
 
 namespace Ui {
 class MainWindow;
@@ -32,10 +33,11 @@ private slots:
 private:
     Ui::MainWindow *ui;
     QGraphicsScene *scene;
-    QGraphicsPixmapItem *player;
+    Player *player;
+
     QTimer *timer;   //every timeout up
     QTimer *timerRF; //every timeout shoot one//Rapid Fire
-    int player_h, player_w;
+
 
 };
 
