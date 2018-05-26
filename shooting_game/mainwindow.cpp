@@ -8,10 +8,19 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui -> setupUi(this);
     ui -> graphicsView -> setScene(scene);
-    player = new QGraphicsPixmapItem(QPixmap(":/images/player"));
+
+    QPixmap Qp(":/images/player");
+    player = new QGraphicsPixmapItem(Qp);
     scene -> addItem(player);
     player -> setPos(40, 20);
-    player -> setScale(0.1); //70*70
+
+    //width and height of player
+    player_w = Qp.width();
+    player_h = Qp.height();
+
+    player -> setScale(50.0/player_w); //50*?
+    player_h = player_h * (50.0/player_w);
+    player_w = 50;
 }
 
 MainWindow::~MainWindow()
@@ -25,25 +34,31 @@ void MainWindow::keyPressEvent(QKeyEvent *e)
     switch(e -> key()) {
     case Qt::Key_Up:
     case Qt::Key_W:
-        if(player -> y() >= 20+10) //border + a move
+        if(player -> y() >= 20 + 10) //border + a move
             player -> setPos(player -> x(), player -> y() - 10);
         else if(player -> y() < 20 + 10) //a move will beyond border
             player -> setPos(player -> x(), 20);  //make player on border
         break;
     case Qt::Key_Down:
     case Qt::Key_S:
-        if(player -> y() < 620 - 70 - 10)
+        if(player -> y() < 620 - player_h - 10)
             player -> setPos(player -> x(), player -> y() + 10);
-        else if(player -> y() >= 620 - 70 - 10)
-            player -> setPos(player -> x(), 620 - 70);
+        else if(player -> y() >= 620 - player_h - 10)
+            player -> setPos(player -> x(), 620 - player_h);
         break;
     case Qt::Key_Left:
     case Qt::Key_A:
-        player -> setPos(player -> x() - 10, player -> y());
+        if(player -> x() >= 40 + 10)
+            player -> setPos(player -> x() - 10, player -> y());
+        else if(player -> x() < 40 + 10)
+            player -> setPos(40, player -> y());
         break;
     case Qt::Key_Right:
     case Qt::Key_D:
-        player -> setPos(player -> x() + 10, player -> y());
+        if(player -> x() < 440 - player_w - 10)
+            player -> setPos(player -> x() + 10, player -> y());
+        else if(player -> x() >= 440 - player_w - 10)
+            player -> setPos(440 - player_w, player -> y());
         break;
     }
 }

@@ -25,6 +25,7 @@ private:
     Ui::MainWindow *ui;
     QGraphicsScene *scene;
     QGraphicsPixmapItem *player;
+    int player_h, player_w;
 
 };
 
