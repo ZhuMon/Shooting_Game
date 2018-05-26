@@ -8,8 +8,8 @@ Bullet::Bullet(QPixmap Qp, int who):PorE(who){
     this -> MysetPixmap(Qp);
 }
 
-void Bullet::fly(){
-    this -> setPos(x(), y() - 3);
+void Bullet::fly(int speed){
+    this -> setPos(x(), y() - speed);
     if(y() < 0) {
         this->scene()->removeItem(this);
         delete this;

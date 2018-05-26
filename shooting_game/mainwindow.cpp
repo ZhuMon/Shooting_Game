@@ -2,12 +2,18 @@
 #include "ui_mainwindow.h"
 
 #include <QDebug>
+#include <QWaitCondition>
+#include <QMutex>
+#include <QTime>
+#include <sys/stat.h>
+#include <unistd.h>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     scene(new QGraphicsScene(40,20, 400, 600)),
-    timer(new QTimer)
+    timer(new QTimer),
+    timerRF(new QTimer)
 {
     ui -> setupUi(this);
     ui -> graphicsView -> setScene(scene);
@@ -15,7 +21,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QPixmap Qp(":/images/player");
     player = new QGraphicsPixmapItem(Qp);
     scene -> addItem(player);
-    player -> setPos(40, 20);
+    player -> setPos(200, 500);
 
     //width and height of player
     player_w = Qp.width();
@@ -28,6 +34,9 @@ MainWindow::MainWindow(QWidget *parent) :
     player_w = 50;
 
     timer -> start(10);
+    timerRF -> start(100);
+
+    connect(timerRF, SIGNAL(timeout()), this, SLOT(on_rapid_fire_clicked()));
 
 }
 
@@ -78,9 +87,41 @@ void MainWindow::mousePressEvent(QMouseEvent *e)
     if(e -> type() == QEvent::MouseButtonPress){
         Bullet *b = new Bullet;
         b -> MysetPixmap(QPixmap(":/images/bullet1").scaled(5,20));
-        b -> setPos(player->x() + player_w / 2 - b->pixmap().width() / 2, player->y() - b->pixmap().height());
+        b -> setPos(player->x() + player_w / 2 + b->pixmap().width(), player->y() - b->pixmap().height());
         b -> connect(timer, SIGNAL(timeout()), b, SLOT(fly()));
         scene->addItem(static_cast<QGraphicsPixmapItem*>(b));
+
+
+
+        Bullet *c = new Bullet;
+        c -> MysetPixmap(QPixmap(":/images/bullet1").scaled(5,20));
+        c -> setPos(player->x() + player_w / 2 - 2*c->pixmap().width(), player->y() - c->pixmap().height());
+        c -> connect(timer, SIGNAL(timeout()), c, SLOT(fly()));
+        scene->addItem(static_cast<QGraphicsPixmapItem*>(c));
     }
 }
 
+
+
+
+void MainWindow::on_rapid_fire_clicked()
+{
+    if(ui -> rapid_fire -> isChecked()){
+
+
+            Bullet *b = new Bullet;
+            b -> MysetPixmap(QPixmap(":/images/bullet1").scaled(5,20));
+            b -> setPos(player->x() + player_w / 2 - b->pixmap().width() / 2, player->y() - b->pixmap().height());
+            b -> connect(timer, SIGNAL(timeout()), b, SLOT(fly()));
+            scene->addItem(static_cast<QGraphicsPixmapItem*>(b));
+/*
+            Bullet *c[10];
+            for(int i = 0; i < 10; i++){
+            c[i] = new Bullet;
+            c[i] -> MysetPixmap(QPixmap(":/images/bullet1").scaled(5,20));
+            c[i] -> setPos(player->x() + player_w / 2 - c[i]->pixmap().width() / 2, player->y()+i*20);
+            c[i] -> connect(timer, SIGNAL(timeout()), c[i], SLOT(fly()));
+            scene->addItem(static_cast<QGraphicsPixmapItem*>(c[i]));
+            }*/
+    }
+}

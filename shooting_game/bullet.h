@@ -15,7 +15,7 @@ public:
     void MysetPixmap(const QPixmap &pixmap);
 
 public slots:
-    virtual void fly();
+    virtual void fly(int speed = 3);
 
 private:
     int PorE; //0:player 1:enemy

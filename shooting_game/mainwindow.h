@@ -25,11 +25,16 @@ public slots:
     virtual void keyPressEvent(QKeyEvent *e);
     virtual void mousePressEvent(QMouseEvent *e);
 
+
+private slots:
+    void on_rapid_fire_clicked();
+
 private:
     Ui::MainWindow *ui;
     QGraphicsScene *scene;
     QGraphicsPixmapItem *player;
-    QTimer *timer;
+    QTimer *timer;   //every timeout up
+    QTimer *timerRF; //every timeout shoot one//Rapid Fire
     int player_h, player_w;
 
 };

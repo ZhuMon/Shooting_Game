@@ -42,6 +42,19 @@
      </rect>
     </property>
    </widget>
+   <widget class="QCheckBox" name="rapid_fire">
+    <property name="geometry">
+     <rect>
+      <x>560</x>
+      <y>140</y>
+      <width>92</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>rapid-fire</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
