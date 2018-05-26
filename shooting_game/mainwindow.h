@@ -5,6 +5,9 @@
 #include <QGraphicsScene>
 #include <QGraphicsPixmapItem>
 #include <QKeyEvent>
+#include <QTimer>
+
+#include <bullet.h>
 
 namespace Ui {
 class MainWindow;
@@ -20,11 +23,13 @@ public:
 
 public slots:
     virtual void keyPressEvent(QKeyEvent *e);
+    virtual void mousePressEvent(QMouseEvent *e);
 
 private:
     Ui::MainWindow *ui;
     QGraphicsScene *scene;
     QGraphicsPixmapItem *player;
+    QTimer *timer;
     int player_h, player_w;
 
 };

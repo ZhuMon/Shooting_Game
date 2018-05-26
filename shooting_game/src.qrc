@@ -2,5 +2,6 @@
 <RCC>
 	<qresource prefix="/images">
         	<file alias="player">plane.png</file>
+		<file alias="bullet1">bullet1.png</file>
     	</qresource>
 </RCC>

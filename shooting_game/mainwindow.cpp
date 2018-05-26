@@ -1,10 +1,13 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include <QDebug>
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    scene(new QGraphicsScene(40,20, 400, 600))
+    scene(new QGraphicsScene(40,20, 400, 600)),
+    timer(new QTimer)
 {
     ui -> setupUi(this);
     ui -> graphicsView -> setScene(scene);
@@ -19,8 +22,13 @@ MainWindow::MainWindow(QWidget *parent) :
     player_h = Qp.height();
 
     player -> setScale(50.0/player_w); //50*?
+
+    //new width and height
     player_h = player_h * (50.0/player_w);
     player_w = 50;
+
+    timer -> start(10);
+
 }
 
 MainWindow::~MainWindow()
@@ -62,3 +70,17 @@ void MainWindow::keyPressEvent(QKeyEvent *e)
         break;
     }
 }
+
+void MainWindow::mousePressEvent(QMouseEvent *e)
+{
+
+
+    if(e -> type() == QEvent::MouseButtonPress){
+        Bullet *b = new Bullet;
+        b -> MysetPixmap(QPixmap(":/images/bullet1").scaled(5,20));
+        b -> setPos(player->x() + player_w / 2 - b->pixmap().width() / 2, player->y() - b->pixmap().height());
+        b -> connect(timer, SIGNAL(timeout()), b, SLOT(fly()));
+        scene->addItem(static_cast<QGraphicsPixmapItem*>(b));
+    }
+}
+
