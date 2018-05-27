@@ -30,6 +30,8 @@ public slots:
 private slots:
     void on_rapid_fire_clicked();
 
+    void checkHP();
+
 private:
     Ui::MainWindow *ui;
     QGraphicsScene *scene;

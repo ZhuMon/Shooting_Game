@@ -15,26 +15,20 @@ MainWindow::MainWindow(QWidget *parent) :
     ui -> setupUi(this);
     ui -> graphicsView -> setScene(scene);
 
-    //QPixmap Qp(":/images/player");
-    //player = new QGraphicsPixmapItem(Qp);
+
     scene -> addItem(player);
-    //player -> setPos(200, 500);
-
-    //width and height of player
-    //player_w = Qp.width();
-    //player_h = Qp.height();
-
-    //player -> setScale(50.0/player_w); //50*?
-
-    //new width and height
-    //player_h = player_h * (50.0/player_w);
-    //player_w = 50;
 
     timer -> start(10);
     timerRF -> start(100);
 
-    connect(timerRF, SIGNAL(timeout()), this, SLOT(on_rapid_fire_clicked()));
+    ui -> hp1 -> setPixmap(QPixmap(":/images/playerHP").scaled(30,30));
+    ui -> hp2 -> setPixmap(QPixmap(":/images/playerHP").scaled(30,30));
+    ui -> hp3 -> setPixmap(QPixmap(":/images/playerHP").scaled(30,30));
+    ui -> hp4 -> setPixmap(QPixmap(":/images/playerHP").scaled(30,30));
+    ui -> hp5 -> setPixmap(QPixmap(":/images/playerHP").scaled(30,30));
 
+    connect(timerRF, SIGNAL(timeout()), this, SLOT(on_rapid_fire_clicked()));
+    connect(timerRF, SIGNAL(timeout()), this, SLOT(checkHP()));
 }
 
 MainWindow::~MainWindow()
@@ -110,4 +104,25 @@ void MainWindow::on_rapid_fire_clicked()
             b -> connect(timer, SIGNAL(timeout()), b, SLOT(fly()));
             scene->addItem(static_cast<QGraphicsPixmapItem*>(b));
     }
+}
+
+void MainWindow::checkHP(){
+
+
+    ui -> hp1 -> setVisible(0);
+    ui -> hp2 -> setVisible(0);
+    ui -> hp3 -> setVisible(0);
+    ui -> hp4 -> setVisible(0);
+    ui -> hp5 -> setVisible(0);
+
+    switch(player->getHp()){
+    case 5:ui -> hp5 -> setVisible(1);
+    case 4:ui -> hp4 -> setVisible(1);
+    case 3:ui -> hp3 -> setVisible(1);
+    case 2:ui -> hp2 -> setVisible(1);
+    case 1:ui -> hp1 -> setVisible(1);
+        break;
+    }
+
+
 }
