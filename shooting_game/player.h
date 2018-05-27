@@ -15,7 +15,7 @@ public:
     void damage(int point);
     void setImage(const QPixmap &Qp, float w);//set width to w
 
-private:
+protected:
     int HP;
     int height, width;
 };

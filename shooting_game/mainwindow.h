@@ -33,6 +33,8 @@ private slots:
 
     void checkHP();
 
+    void hit(Bullet *b);
+
 private:
     Ui::MainWindow *ui;
     QGraphicsScene *scene;

@@ -3,6 +3,8 @@
 
 #include <QDebug>
 #include <QMovie>
+#include <QSignalMapper>
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -31,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(timerRF, SIGNAL(timeout()), this, SLOT(on_rapid_fire_clicked()));
     connect(timerRF, SIGNAL(timeout()), this, SLOT(checkHP()));
+
 }
 
 MainWindow::~MainWindow()
@@ -76,12 +79,12 @@ void MainWindow::keyPressEvent(QKeyEvent *e)
 void MainWindow::mousePressEvent(QMouseEvent *e)
 {
 
-
     if(e -> type() == QEvent::MouseButtonPress){
         Bullet *b = new Bullet;
         b -> MysetPixmap(QPixmap(":/images/bullet1").scaled(5,20));
         b -> setPos(player->x() + player->getW() / 2 + b->pixmap().width(), player->y() - b->pixmap().height());
         b -> connect(timer, SIGNAL(timeout()), b, SLOT(fly()));
+        connect(b, SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
         scene->addItem(static_cast<QGraphicsPixmapItem*>(b));
 
 
@@ -90,6 +93,7 @@ void MainWindow::mousePressEvent(QMouseEvent *e)
         c -> MysetPixmap(QPixmap(":/images/bullet1").scaled(5,20));
         c -> setPos(player->x() + player->getW() / 2 - 2*c->pixmap().width(), player->y() - c->pixmap().height());
         c -> connect(timer, SIGNAL(timeout()), c, SLOT(fly()));
+        connect(c, SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
         scene->addItem(static_cast<QGraphicsPixmapItem*>(c));
     }
 }
@@ -104,6 +108,7 @@ void MainWindow::on_rapid_fire_clicked()
             b -> MysetPixmap(QPixmap(":/images/bullet1").scaled(5,20));
             b -> setPos(player->x() + player->getW() / 2 - b->pixmap().width() / 2, player->y() - b->pixmap().height());
             b -> connect(timer, SIGNAL(timeout()), b, SLOT(fly()));
+            connect(b, SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
             scene->addItem(static_cast<QGraphicsPixmapItem*>(b));
     }
 }
@@ -127,4 +132,26 @@ void MainWindow::checkHP(){
     }
 
 
+}
+
+void MainWindow::hit(Bullet *b){
+    if(b->whoShot() == 0){ //player shot the bullet
+        if(b->x() >= enemy->x() && b->x() + b->pixmap().width() <= enemy->x() + enemy->getW() &&
+            b->y() <= enemy->y() + enemy->getH() && b->y() >= enemy->y()){
+            enemy -> damage(1);
+            ui -> enemyHP -> setValue(ui -> enemyHP -> value() -1);
+            scene -> removeItem(b);
+            delete b;
+        }
+
+    } else if(b -> whoShot() == 0){
+        int b_head_x = b -> x() + b->pixmap().width()/2;
+        int b_head_y = b -> y() + b->pixmap().height();
+        if(b_head_x >= player -> x() && b_head_x <= player -> x() + player -> getW() &&
+                b_head_y >= player -> y() && b_head_y <= player -> y() + player -> getH()){
+            player -> damage(1);
+            scene -> removeItem(b);
+            delete b;
+        }
+    }
 }

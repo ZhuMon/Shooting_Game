@@ -14,6 +14,7 @@ void Bullet::fly(int speed){
         this->scene()->removeItem(this);
         delete this;
     }
+    emit bulletFly(this);
 }
 
 void Bullet::MysetPixmap(const QPixmap &pixmap){
@@ -27,4 +28,8 @@ void Bullet::MysetPixmap(const QPixmap &pixmap){
     }
 
     this -> setPixmap(Qp);
+}
+
+int Bullet::whoShot(){
+    return PorE;
 }

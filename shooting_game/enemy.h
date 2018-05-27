@@ -4,15 +4,15 @@
 #include <player.h>
 #include <QLabel>
 
-class Enemy: public Player, public QLabel
+class Enemy: public Player//, public QLabel
 {
 public:
     Enemy();
-    int getH();
-    int getW();
-    int getHp();
-    void recover(int point);
-    void damage(int point);
+    //int getH();
+    //int getW();
+    //int getHp();
+    //void recover(int point);
+    //void damage(int point);
 
 private:
     //int HP;
