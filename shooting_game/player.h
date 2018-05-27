@@ -2,6 +2,7 @@
 #define PLAYER_H
 #include <QGraphicsPixmapItem>
 #include <QGraphicsScene>
+#include <QPixmap>
 
 class Player: public QGraphicsPixmapItem
 {
@@ -12,6 +13,7 @@ public:
     int getHp();
     void recover(int point);
     void damage(int point);
+    void setImage(const QPixmap &Qp, float w);//set width to w
 
 private:
     int HP;

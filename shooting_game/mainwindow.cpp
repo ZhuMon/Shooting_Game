@@ -2,7 +2,7 @@
 #include "ui_mainwindow.h"
 
 #include <QDebug>
-
+#include <QMovie>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -10,13 +10,15 @@ MainWindow::MainWindow(QWidget *parent) :
     scene(new QGraphicsScene(40,20, 400, 600)),
     timer(new QTimer),
     timerRF(new QTimer),
-    player(new Player)
+    player(new Player),
+    enemy(new Enemy)
 {
     ui -> setupUi(this);
     ui -> graphicsView -> setScene(scene);
 
 
     scene -> addItem(player);
+    scene -> addItem(enemy);
 
     timer -> start(10);
     timerRF -> start(100);

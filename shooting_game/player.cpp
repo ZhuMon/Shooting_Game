@@ -2,18 +2,10 @@
 
 Player::Player()
 {
-    QPixmap Qp(":/images/player");
-    this -> setPixmap(Qp);
-    this -> setPos(200, 500);
+
+    setImage(QPixmap(":/images/player"), 50.0);
 
 
-    width = Qp.width();
-    height = Qp.height();
-
-    this -> setScale(50.0/width); //50*?
-
-    height = height * (50.0/width);
-    width = 50;
 
     HP = 5;
 }
@@ -34,4 +26,18 @@ void Player::recover(int point){
 }
 void Player::damage(int point){
     HP-=point;
+}
+
+void Player::setImage(const QPixmap &Qp, float w){
+
+    width = Qp.width();
+    height = Qp.height();
+
+    setScale(w/width); //50*?
+    setPixmap(Qp);
+    setPos(200, 500);
+
+
+    height = height * (w/width);
+    width = w;
 }

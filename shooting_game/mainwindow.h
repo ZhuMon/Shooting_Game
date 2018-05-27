@@ -7,8 +7,9 @@
 #include <QKeyEvent>
 #include <QTimer>
 
-#include <bullet.h>
-#include <player.h>
+#include "bullet.h"
+#include "player.h"
+#include "enemy.h"
 
 namespace Ui {
 class MainWindow;
@@ -35,8 +36,9 @@ private slots:
 private:
     Ui::MainWindow *ui;
     QGraphicsScene *scene;
-    Player *player;
 
+    Player *player;
+    Enemy *enemy;
     QTimer *timer;   //every timeout up
     QTimer *timerRF; //every timeout shoot one//Rapid Fire
 

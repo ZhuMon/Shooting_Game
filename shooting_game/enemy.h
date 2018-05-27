@@ -2,8 +2,9 @@
 #define ENEMY_H
 
 #include <player.h>
+#include <QLabel>
 
-class Enemy: public Player
+class Enemy: public Player, public QLabel
 {
 public:
     Enemy();
@@ -14,8 +15,8 @@ public:
     void damage(int point);
 
 private:
-    int HP;
-    int height, width;
+    //int HP;
+    //int height, width;
 };
 
 #endif // ENEMY_H

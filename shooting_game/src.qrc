@@ -4,5 +4,6 @@
         	<file alias="player">plane.png</file>
 		<file alias="bullet1">bullet1.png</file>
 		<file alias="playerHP">heart.png</file>
+		<file alias="boss">boss_1.jpg</file>
     	</qresource>
 </RCC>
