@@ -35,6 +35,12 @@ private slots:
 
     void hit(Bullet *b);
 
+    void on_start_clicked();
+
+    void enemy_shoot();
+
+    void on_stop_clicked();
+
 private:
     Ui::MainWindow *ui;
     QGraphicsScene *scene;
@@ -43,6 +49,7 @@ private:
     Enemy *enemy;
     QTimer *timer;   //every timeout up
     QTimer *timerRF; //every timeout shoot one//Rapid Fire
+    QTimer *timerES; //every timeout shoot one//Enemy Shoot
 
 
 };

@@ -1,15 +1,19 @@
 #include "bullet.h"
 
-Bullet::Bullet(int who){
+Bullet::Bullet(int who, int speed){
     PorE = who;
+    s = speed;
 }
 
-Bullet::Bullet(QPixmap Qp, int who):PorE(who){
+Bullet::Bullet(QPixmap Qp, int who, int speed):PorE(who), s(speed){
     this -> MysetPixmap(Qp);
 }
 
-void Bullet::fly(int speed){
-    this -> setPos(x(), y() - speed);
+void Bullet::fly(){
+    if(PorE == 0)
+        this -> setPos(x(), y() - s);
+    else if(PorE == 1)
+        this -> setPos(x(), y() + s);
     if(y() < 0) {
         this->scene()->removeItem(this);
         delete this;
@@ -32,4 +36,8 @@ void Bullet::MysetPixmap(const QPixmap &pixmap){
 
 int Bullet::whoShot(){
     return PorE;
+}
+
+int Bullet::getSpeed(){
+    return s;
 }

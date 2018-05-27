@@ -10,8 +10,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     scene(new QGraphicsScene(40,20, 400, 600)),
-    timer(new QTimer),
-    timerRF(new QTimer),
+    timer(new QTimer),timerRF(new QTimer),timerES(new QTimer),
+
     player(new Player),
     enemy(new Enemy)
 {
@@ -24,6 +24,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     timer -> start(10);
     timerRF -> start(100);
+    timerES -> start(1000);
 
     ui -> hp1 -> setPixmap(QPixmap(":/images/playerHP").scaled(30,30));
     ui -> hp2 -> setPixmap(QPixmap(":/images/playerHP").scaled(30,30));
@@ -144,7 +145,7 @@ void MainWindow::hit(Bullet *b){
             delete b;
         }
 
-    } else if(b -> whoShot() == 0){
+    } else if(b -> whoShot() == 1){
         int b_head_x = b -> x() + b->pixmap().width()/2;
         int b_head_y = b -> y() + b->pixmap().height();
         if(b_head_x >= player -> x() && b_head_x <= player -> x() + player -> getW() &&
@@ -154,4 +155,31 @@ void MainWindow::hit(Bullet *b){
             delete b;
         }
     }
+}
+
+void MainWindow::on_start_clicked()
+{
+    ui -> enemyHP -> setValue(100);
+
+    while(player -> getHp() < 5){
+        player -> recover(1);
+    }
+
+    connect(timerES, SIGNAL(timeout()), this, SLOT(enemy_shoot()));
+}
+
+void MainWindow::enemy_shoot(){
+    Bullet *b = new Bullet(QPixmap(":/images/bullet2").scaled(25, 25), 1, 1);
+    b -> setPos(enemy -> x() + enemy -> getW()/2 - b -> pixmap().width()/2, enemy -> y() + enemy -> getH());
+    b -> connect(timer, SIGNAL(timeout()), b, SLOT(fly()));
+    connect(b, SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+    scene->addItem(static_cast<QGraphicsPixmapItem*>(b));
+
+}
+
+void MainWindow::on_stop_clicked()
+{
+    disconnect(timerES, SIGNAL(timeout()), this, SLOT(enemy_shoot()));
+    disconnect(timerRF, SIGNAL(timeout()), this, SLOT(on_rapid_fire_clicked()));
+
 }
