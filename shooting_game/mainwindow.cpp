@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QMovie>
 #include <QSignalMapper>
+#include <QtMath>
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -13,7 +14,9 @@ MainWindow::MainWindow(QWidget *parent) :
     timer(new QTimer),timerRF(new QTimer),timerES(new QTimer),
 
     player(new Player),
-    enemy(new Enemy)
+    enemy(new Enemy),
+    enemy_move_cycle(0),
+    bullet_move_cycle(0)
 {
     ui -> setupUi(this);
     ui -> graphicsView -> setScene(scene);
@@ -32,9 +35,17 @@ MainWindow::MainWindow(QWidget *parent) :
     ui -> hp4 -> setPixmap(QPixmap(":/images/playerHP").scaled(30,30));
     ui -> hp5 -> setPixmap(QPixmap(":/images/playerHP").scaled(30,30));
 
-    connect(timerRF, SIGNAL(timeout()), this, SLOT(on_rapid_fire_clicked()));
     connect(timerRF, SIGNAL(timeout()), this, SLOT(checkHP()));
+    connect(timer, SIGNAL(timeout()), this, SLOT(bullet_track_control()));
+    //QLabel label;
+    /*QMovie *movie = new QMovie(":/images/bossgif");
+    //label.setMovie(movie);
+    movie ->setScaledSize(QSize(200,300));
+    ui -> boss -> setMovie(movie);
 
+    movie -> start();
+    //ui -> boss ->setGeometry(40,20, 300, 100);
+*/
 }
 
 MainWindow::~MainWindow()
@@ -164,14 +175,18 @@ void MainWindow::on_start_clicked()
     while(player -> getHp() < 5){
         player -> recover(1);
     }
+//es
+    connect(timerRF, SIGNAL(timeout()), this, SLOT(enemy_shoot()));
+    connect(timerRF, SIGNAL(timeout()), this, SLOT(on_rapid_fire_clicked()));
+    //connect(timerRF, SIGNAL(timeout()), this, SLOT(enemy_move()));
 
-    connect(timerES, SIGNAL(timeout()), this, SLOT(enemy_shoot()));
 }
 
 void MainWindow::enemy_shoot(){
     Bullet *b = new Bullet(QPixmap(":/images/bullet2").scaled(25, 25), 1, 1);
     b -> setPos(enemy -> x() + enemy -> getW()/2 - b -> pixmap().width()/2, enemy -> y() + enemy -> getH());
-    b -> connect(timer, SIGNAL(timeout()), b, SLOT(fly()));
+    //b -> connect(timer, SIGNAL(timeout()), b, SLOT(fly()));
+    b -> connect(this, SIGNAL(bullet_track(int, int)), b, SLOT(fly(int,int)));
     connect(b, SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
     scene->addItem(static_cast<QGraphicsPixmapItem*>(b));
 
@@ -181,5 +196,33 @@ void MainWindow::on_stop_clicked()
 {
     disconnect(timerES, SIGNAL(timeout()), this, SLOT(enemy_shoot()));
     disconnect(timerRF, SIGNAL(timeout()), this, SLOT(on_rapid_fire_clicked()));
+    disconnect(timerRF, SIGNAL(timeout()), this, SLOT(enemy_move()));
+}
 
+void MainWindow::enemy_move(){
+    enemy_move_cycle++;
+    if(enemy_move_cycle == 100){ //10s
+        enemy_move_cycle = 0;
+        return;
+    } else if(enemy_move_cycle < 25) { //2.5s
+        enemy->setPos(enemy->x() + 5, enemy->y());
+    } else if(enemy_move_cycle < 75) {
+        enemy->setPos(enemy->x() - 5, enemy->y());
+    } else if(enemy_move_cycle < 100) {
+        enemy->setPos(enemy->x() + 5, enemy->y());
+    }
+
+}
+
+void MainWindow::bullet_track_control(){
+    bullet_move_cycle++;
+    if(bullet_move_cycle == 360){
+        bullet_move_cycle = 0;
+    } else {
+        double x, y;
+        x = qDegreesToRadians((double)bullet_move_cycle);
+        y = qDegreesToRadians((double)bullet_move_cycle);
+        emit bullet_track(qCos(x)*5,qSin(y)*5);
+
+    }
 }

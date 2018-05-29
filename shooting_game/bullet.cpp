@@ -9,12 +9,15 @@ Bullet::Bullet(QPixmap Qp, int who, int speed):PorE(who), s(speed){
     this -> MysetPixmap(Qp);
 }
 
-void Bullet::fly(){
+void Bullet::fly(int mX, int mY){
     if(PorE == 0)
         this -> setPos(x(), y() - s);
     else if(PorE == 1)
-        this -> setPos(x(), y() + s);
-    if(y() < 0) {
+        if(mX != 0 || mY != 0)
+            this -> setPos(x() + mX, y() + mY);
+        else
+            this -> setPos(x(), y() + s);
+    if(y() < 20 || y() > 620 || x() < 40 || x() > 440) {
         this->scene()->removeItem(this);
         delete this;
     }

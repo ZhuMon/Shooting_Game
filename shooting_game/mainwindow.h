@@ -41,6 +41,14 @@ private slots:
 
     void on_stop_clicked();
 
+    void enemy_move();
+
+    void bullet_track_control();
+
+signals:
+    void bullet_track(int x, int y);
+
+
 private:
     Ui::MainWindow *ui;
     QGraphicsScene *scene;
@@ -51,6 +59,8 @@ private:
     QTimer *timerRF; //every timeout shoot one//Rapid Fire
     QTimer *timerES; //every timeout shoot one//Enemy Shoot
 
+    int enemy_move_cycle;
+    int bullet_move_cycle;
 
 };
 
