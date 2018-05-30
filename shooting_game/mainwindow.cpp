@@ -175,21 +175,148 @@ void MainWindow::on_start_clicked()
     while(player -> getHp() < 5){
         player -> recover(1);
     }
-//es
-    connect(timerRF, SIGNAL(timeout()), this, SLOT(enemy_shoot()));
+
+    connect(timerES, SIGNAL(timeout()), this, SLOT(enemy_shoot()));
     connect(timerRF, SIGNAL(timeout()), this, SLOT(on_rapid_fire_clicked()));
     //connect(timerRF, SIGNAL(timeout()), this, SLOT(enemy_move()));
 
 }
 
 void MainWindow::enemy_shoot(){
+    Bullet *b[12];
+    int x[12] = {3, 4, 5, 4, 3, 0, -3, -4, -5, -4, -3, 0};
+    int y[12] = {-4, -3, 0, 3, 4, 5, 4, 3, 0, -3, -4, -5};
+    for(int i = 0; i < 12; i++){
+        b[i] = new Bullet(QPixmap(":/images/bullet2").scaled(25, 25), 1, 1);
+        //b[i] -> MysetPos(enemy, 6);
+        b[i] -> setPos(enemy -> x() + enemy -> getW()/2, enemy -> y() + enemy -> getH()/2);
+        b[i] -> pX = x[i];
+        b[i] -> pY = y[i];
+        //b[i] -> connect(timerRF, SIGNAL(timeout()), b[i], SLOT(fly()));
+        b[i] -> connect(this, SIGNAL(bullet_track(int, int)), b[i], SLOT(fly(int,int)));
+        connect(b[i], SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+        scene->addItem(static_cast<QGraphicsPixmapItem*>(b[i]));
+    }
+/*
     Bullet *b = new Bullet(QPixmap(":/images/bullet2").scaled(25, 25), 1, 1);
-    b -> setPos(enemy -> x() + enemy -> getW()/2 - b -> pixmap().width()/2, enemy -> y() + enemy -> getH());
-    //b -> connect(timer, SIGNAL(timeout()), b, SLOT(fly()));
+    //b -> MysetPos(enemy, 6);
+    b -> setPos(enemy -> x() + enemy -> getW()/2, enemy -> y() + enemy -> getH()/2);
+    b -> pY = 5;
+    //b -> connect(timerRF, SIGNAL(timeout()), b, SLOT(fly()));
     b -> connect(this, SIGNAL(bullet_track(int, int)), b, SLOT(fly(int,int)));
     connect(b, SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
     scene->addItem(static_cast<QGraphicsPixmapItem*>(b));
 
+    Bullet *c = new Bullet(QPixmap(":/images/bullet2").scaled(25, 25), 1, 1);
+    //c -> MysetPos(enemy, 7);
+    c -> setPos(enemy -> x() + enemy -> getW()/2, enemy -> y() + enemy -> getH()/2);
+    c -> pX = -3;
+    c -> pY = 4;
+    c -> connect(this, SIGNAL(bullet_track(int, int)), c, SLOT(fly(int,int)));
+    //c -> connect(timerRF, SIGNAL(timeout()), c, SLOT(fly()));
+    connect(c, SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+    scene->addItem(static_cast<QGraphicsPixmapItem*>(c));
+
+    Bullet *d = new Bullet(QPixmap(":/images/bullet2").scaled(25, 25), 1, 1);
+    //d -> MysetPos(enemy, 5);
+    d -> setPos(enemy -> x() + enemy -> getW()/2, enemy -> y() + enemy -> getH()/2);
+    d -> pX = 3;
+    d -> pY = 4;
+    d -> connect(this, SIGNAL(bullet_track(int, int)), d, SLOT(fly(int,int)));
+    //d -> connect(timerRF, SIGNAL(timeout()), d, SLOT(fly()));
+    connect(d, SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+    scene->addItem(static_cast<QGraphicsPixmapItem*>(d));
+
+    Bullet *e = new Bullet(QPixmap(":/images/bullet2").scaled(25, 25), 1, 1);
+    //e -> MysetPos(enemy, 4);
+    e -> setPos(enemy -> x() + enemy -> getW()/2, enemy -> y() + enemy -> getH()/2);
+    e -> pX = 4;
+    e -> pY = 3;
+    e -> connect(this, SIGNAL(bullet_track(int, int)), e, SLOT(fly(int,int)));
+    //e -> connect(timerRF, SIGNAL(timeout()), e, SLOT(fly()));
+    connect(e, SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+    scene->addItem(static_cast<QGraphicsPixmapItem*>(e));
+
+    Bullet *f = new Bullet(QPixmap(":/images/bullet2").scaled(25, 25), 1, 1);
+    //f -> MysetPos(enemy, 8);
+    f -> setPos(enemy -> x() + enemy -> getW()/2, enemy -> y() + enemy -> getH()/2);
+    f -> pX = -4;
+    f -> pY = 3;
+    f -> connect(this, SIGNAL(bullet_track(int, int)), f, SLOT(fly(int,int)));
+    //f -> connect(timerRF, SIGNAL(timeout()), f, SLOT(fly()));
+    connect(f, SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+    scene->addItem(static_cast<QGraphicsPixmapItem*>(f));
+
+    Bullet *g = new Bullet(QPixmap(":/images/bullet2").scaled(25, 25), 1, 1);
+    //g -> MysetPos(enemy, 8);
+    g -> setPos(enemy -> x() + enemy -> getW()/2, enemy -> y() + enemy -> getH()/2);
+    g -> pX = -4;
+    g -> pY = 3;
+    g -> connect(this, SIGNAL(bullet_track(int, int)), g, SLOT(fly(int,int)));
+    //g -> connect(timerRF, SIGNAL(timeout()), g, SLOT(fly()));
+    connect(g, SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+    scene->addItem(static_cast<QGraphicsPixmapItem*>(g));
+
+    Bullet *h = new Bullet(QPixmap(":/images/bullet2").scaled(25, 25), 1, 1);
+    //h -> MysetPos(enemy, 8);
+    h -> setPos(enemy -> x() + enemy -> getW()/2, enemy -> y() + enemy -> getH()/2);
+    h -> pX = -4;
+    h -> pY = 3;
+    h -> connect(this, SIGNAL(bullet_track(int, int)), h, SLOT(fly(int,int)));
+    //h -> connect(timerRF, SIGNAL(timeout()), h, SLOT(fly()));
+    connect(h, SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+    scene->addItem(static_cast<QGraphicsPixmapItem*>(h));
+
+    Bullet *m = new Bullet(QPixmap(":/images/bullet2").scaled(25, 25), 1, 1);
+    //m -> MysetPos(enemy, 8);
+    m -> setPos(enemy -> x() + enemy -> getW()/2, enemy -> y() + enemy -> getH()/2);
+    m -> pX = -4;
+    m -> pY = 3;
+    m -> connect(this, SIGNAL(bullet_track(int, int)), m, SLOT(fly(int,int)));
+    //m -> connect(timerRF, SIGNAL(timeout()), m, SLOT(fly()));
+    connect(m, SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+    scene->addItem(static_cast<QGraphicsPixmapItem*>(m));
+
+    Bullet *n = new Bullet(QPixmap(":/images/bullet2").scaled(25, 25), 1, 1);
+    //n -> MysetPos(enemy, 8);
+    n -> setPos(enemy -> x() + enemy -> getW()/2, enemy -> y() + enemy -> getH()/2);
+    n -> pX = -4;
+    n -> pY = 3;
+    n -> connect(this, SIGNAL(bullet_track(int, int)), n, SLOT(fly(int,int)));
+    //n -> connect(timerRF, SIGNAL(timeout()), n, SLOT(fly()));
+    connect(n, SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+    scene->addItem(static_cast<QGraphicsPixmapItem*>(n));
+
+    Bullet *o = new Bullet(QPixmap(":/images/bullet2").scaled(25, 25), 1, 1);
+    //o -> MysetPos(enemy, 8);
+    o -> setPos(enemy -> x() + enemy -> getW()/2, enemy -> y() + enemy -> getH()/2);
+    o -> pX = -4;
+    o -> pY = 3;
+    o -> connect(this, SIGNAL(bullet_track(int, int)), f, SLOT(fly(int,int)));
+    //f -> connect(timerRF, SIGNAL(timeout()), f, SLOT(fly()));
+    connect(f, SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+    scene->addItem(static_cast<QGraphicsPixmapItem*>(f));
+
+    Bullet *f = new Bullet(QPixmap(":/images/bullet2").scaled(25, 25), 1, 1);
+    //f -> MysetPos(enemy, 8);
+    f -> setPos(enemy -> x() + enemy -> getW()/2, enemy -> y() + enemy -> getH()/2);
+    f -> pX = -4;
+    f -> pY = 3;
+    f -> connect(this, SIGNAL(bullet_track(int, int)), f, SLOT(fly(int,int)));
+    //f -> connect(timerRF, SIGNAL(timeout()), f, SLOT(fly()));
+    connect(f, SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+    scene->addItem(static_cast<QGraphicsPixmapItem*>(f));
+
+    Bullet *f = new Bullet(QPixmap(":/images/bullet2").scaled(25, 25), 1, 1);
+    //f -> MysetPos(enemy, 8);
+    f -> setPos(enemy -> x() + enemy -> getW()/2, enemy -> y() + enemy -> getH()/2);
+    f -> pX = -4;
+    f -> pY = 3;
+    f -> connect(this, SIGNAL(bullet_track(int, int)), f, SLOT(fly(int,int)));
+    //f -> connect(timerRF, SIGNAL(timeout()), f, SLOT(fly()));
+    connect(f, SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+    scene->addItem(static_cast<QGraphicsPixmapItem*>(f));
+    */
 }
 
 void MainWindow::on_stop_clicked()
@@ -216,13 +343,32 @@ void MainWindow::enemy_move(){
 
 void MainWindow::bullet_track_control(){
     bullet_move_cycle++;
-    if(bullet_move_cycle == 360){
-        bullet_move_cycle = 0;
-    } else {
-        double x, y;
-        x = qDegreesToRadians((double)bullet_move_cycle);
-        y = qDegreesToRadians((double)bullet_move_cycle);
-        emit bullet_track(qCos(x)*5,qSin(y)*5);
+    //int back;
+    //back = bullet_move_cycle-100;
 
+    if(bullet_move_cycle < 50){
+        //back = 360 - bullet_move_cycle;
+        //double x;//, y;
+        //x = qDegreesToRadians((double)bullet_move_cycle);
+        //y = qDegreesToRadians((double)bullet_move_cycle);
+        emit bullet_track(0,5);
+    } else if(bullet_move_cycle < 70){
+        //double x;//, y;
+        //x = qDegreesToRadians((double)back);
+        //y = qDegreesToRadians((double)bullet_move_cycle);
+        //emit bullet_track(qCos(x)*10,qSin(x)*10);
+        emit bullet_track(0, 0);
+    } else if(bullet_move_cycle < 100){
+        emit bullet_track(0,5);
+    } else if(bullet_move_cycle < 120){
+        emit bullet_track(0,0);
+    } else if(bullet_move_cycle < 200){
+        emit bullet_track(0,5);
+    } else if(bullet_move_cycle < 220){
+        emit bullet_track(0,0);
+    } else if(bullet_move_cycle < 360){
+        emit bullet_track(0,5);
+    } else if(bullet_move_cycle == 360){
+        bullet_move_cycle = 0;
     }
 }
