@@ -12,16 +12,6 @@ Enemy::Enemy()
     HP = 100;
 }
 
-/*int Enemy::getH(){
-    return height;
-}
 
-int Enemy::getW(){
-    return width;
-}
-
-int Enemy::getHP(){
-    return HP;
-}*/
 
 

@@ -1,10 +1,9 @@
 #ifndef ENEMY_H
 #define ENEMY_H
 
-#include <player.h>
-#include <QLabel>
+#include "character.h"
 
-class Enemy: public Player//, public QLabel
+class Enemy: public Character//, public QLabel
 {
 public:
     Enemy();

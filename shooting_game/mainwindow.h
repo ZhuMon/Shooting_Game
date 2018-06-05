@@ -53,8 +53,7 @@ private:
     Ui::MainWindow *ui;
     QGraphicsScene *scene;
 
-    Player *player;
-    Enemy *enemy;
+    Character *player, *enemy;
     QTimer *timer;   //every timeout up
     QTimer *timerRF; //every timeout shoot one//Rapid Fire
     QTimer *timerES; //every timeout shoot one//Enemy Shoot

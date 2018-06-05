@@ -38,14 +38,14 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(timerRF, SIGNAL(timeout()), this, SLOT(checkHP()));
     connect(timerRF, SIGNAL(timeout()), this, SLOT(bullet_track_control()));
     //QLabel label;
-    /*QMovie *movie = new QMovie(":/images/bossgif");
+    QMovie *movie = new QMovie(":/images/bat");
     //label.setMovie(movie);
-    movie ->setScaledSize(QSize(200,300));
+    movie ->setScaledSize(QSize(200,160));
     ui -> boss -> setMovie(movie);
 
     movie -> start();
-    //ui -> boss ->setGeometry(40,20, 300, 100);
-*/
+    ui -> boss ->setGeometry(150,200, 200, 80);
+
 }
 
 MainWindow::~MainWindow()
@@ -147,6 +147,10 @@ void MainWindow::checkHP(){
         ui -> gameover -> setText("GameOver");
         on_stop_clicked();
     }
+    if(enemy -> getHp() <= 0){
+        ui -> gameover -> setText(" You Win");
+        on_stop_clicked();
+    }
 
 }
 
@@ -217,12 +221,16 @@ void MainWindow::enemy_move(){
         enemy_move_cycle = 0;
         return;
     } else if(enemy_move_cycle < 25) { //2.5s
-        enemy->setPos(enemy->x() + 5, enemy->y());
+        enemy->setPos(enemy->x() + 5, enemy-> y());
+        ui -> boss ->setGeometry(ui -> boss -> x() + 10, ui -> boss -> y(), ui -> boss ->width(), ui -> boss -> height());
     } else if(enemy_move_cycle < 75) {
         enemy->setPos(enemy->x() - 5, enemy->y());
+        ui -> boss ->setGeometry(ui -> boss -> x() - 10, ui -> boss -> y(), ui -> boss ->width(), ui -> boss -> height());
     } else if(enemy_move_cycle < 100) {
         enemy->setPos(enemy->x() + 5, enemy->y());
+        ui -> boss ->setGeometry(ui -> boss -> x() + 10, ui -> boss -> y(), ui -> boss ->width(), ui -> boss -> height());
     }
+
 
 }
 
