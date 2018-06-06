@@ -2,18 +2,22 @@
 #define ENEMY_H
 
 #include "character.h"
+#include <QProgressBar>
 
 class Enemy: public Character//, public QLabel
 {
 public:
-    Enemy();
+    Enemy(QWidget *parent);
+    virtual void myMove(int x, int y);
     //int getH();
     //int getW();
     //int getHp();
     //void recover(int point);
-    //void damage(int point);
+    virtual void damage(int point);
+    virtual void recover(int point);
 
 private:
+    QProgressBar *HPpercent;
     //int HP;
     //int height, width;
 };

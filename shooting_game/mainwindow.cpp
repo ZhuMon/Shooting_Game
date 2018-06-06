@@ -7,6 +7,7 @@
 #include <QtMath>
 
 
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -14,14 +15,15 @@ MainWindow::MainWindow(QWidget *parent) :
     timer(new QTimer),timerRF(new QTimer),timerES(new QTimer),
 
     player(new Player),
-    enemy(new Enemy),
+    //enemy(new Enemy(this)),
     enemy_move_cycle(0),
     bullet_move_cycle(0)
+    //levelmode(new QWidget)
 {
     ui -> setupUi(this);
     ui -> graphicsView -> setScene(scene);
 
-
+    enemy = new Enemy(this); // so the HP can flow on scene
     scene -> addItem(player);
     scene -> addItem(enemy);
 
@@ -45,6 +47,21 @@ MainWindow::MainWindow(QWidget *parent) :
 
     movie -> start();
     ui -> boss ->setGeometry(150,200, 200, 80);
+
+    levelAction = new QAction(tr("&Level..."), this);
+    playAction = new QAction(tr("&Play..."), this);
+
+    levelAction -> setStatusTip(tr("level"));
+    playAction -> setStatusTip(tr("play"));
+
+    connect(levelAction, &QAction::triggered, this, &MainWindow::tolevelMode);
+    connect(playAction, &QAction::triggered, this, &MainWindow::toplayMode);
+
+    ui -> mainToolBar -> addAction(levelAction);
+    ui -> mainToolBar -> addAction(playAction);
+    statusBar() ;
+
+
 
 }
 
@@ -159,7 +176,6 @@ void MainWindow::hit(Bullet *b){
         if(b->x() >= enemy->x() && b->x() + b->pixmap().width() <= enemy->x() + enemy->getW() &&
             b->y() <= enemy->y() + enemy->getH() && b->y() >= enemy->y()){
             enemy -> damage(1);
-            ui -> enemyHP -> setValue(ui -> enemyHP -> value() -1);
             scene -> removeItem(b);
             delete b;
         }
@@ -178,7 +194,10 @@ void MainWindow::hit(Bullet *b){
 
 void MainWindow::on_start_clicked()
 {
-    ui -> enemyHP -> setValue(100);
+    while(enemy -> getHp() < 100){
+        enemy -> recover(1);
+
+    }
     ui -> gameover -> setText("");
     while(player -> getHp() < 5){
         player -> recover(1);
@@ -221,13 +240,16 @@ void MainWindow::enemy_move(){
         enemy_move_cycle = 0;
         return;
     } else if(enemy_move_cycle < 25) { //2.5s
-        enemy->setPos(enemy->x() + 5, enemy-> y());
+        enemy->myMove(5,0);
+        //enemy->setPos(enemy->x() + 5, enemy-> y());
         ui -> boss ->setGeometry(ui -> boss -> x() + 10, ui -> boss -> y(), ui -> boss ->width(), ui -> boss -> height());
     } else if(enemy_move_cycle < 75) {
-        enemy->setPos(enemy->x() - 5, enemy->y());
+        enemy->myMove(-5,0);
+        //enemy->setPos(enemy->x() - 5, enemy->y());
         ui -> boss ->setGeometry(ui -> boss -> x() - 10, ui -> boss -> y(), ui -> boss ->width(), ui -> boss -> height());
     } else if(enemy_move_cycle < 100) {
-        enemy->setPos(enemy->x() + 5, enemy->y());
+        enemy->myMove(5,0);
+        //enemy->setPos(enemy->x() + 5, enemy->y());
         ui -> boss ->setGeometry(ui -> boss -> x() + 10, ui -> boss -> y(), ui -> boss ->width(), ui -> boss -> height());
     }
 
@@ -264,4 +286,26 @@ void MainWindow::bullet_track_control(){
     } else if(bullet_move_cycle == 360){
         bullet_move_cycle = 0;
     }*/
+}
+
+void MainWindow::tolevelMode(){
+    levelmode -> setVisible(true);
+    //ui ->playmode -> setVisible(false);
+}
+
+void MainWindow::toplayMode(){
+    levelmode -> setVisible(false);
+    //ui -> playmode -> setVisible(true);
+
+}
+
+void MainWindow::setLevelMode(){
+    QPushButton *level[9];
+
+    for(int i = 0; i < 9; i++){
+        level[i] = new QPushButton(QString::number(i+1), levelmode);
+        level[i] ->setGeometry(100+20*(i%3), 40 + 20*(i/3), 10, 10);
+
+    }
+
 }

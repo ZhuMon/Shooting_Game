@@ -58,6 +58,14 @@ private:
     QTimer *timerRF; //every timeout shoot one//Rapid Fire
     QTimer *timerES; //every timeout shoot one//Enemy Shoot
 
+    QWidget *levelmode;
+    void setLevelMode();
+
+    QAction *levelAction;
+    QAction *playAction;
+    void tolevelMode();
+    void toplayMode();
+
     int enemy_move_cycle;
     int bullet_move_cycle;
 
