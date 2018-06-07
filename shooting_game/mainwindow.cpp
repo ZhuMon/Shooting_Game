@@ -18,14 +18,13 @@ MainWindow::MainWindow(QWidget *parent) :
     //enemy(new Enemy(this)),
     enemy_move_cycle(0),
     bullet_move_cycle(0)
-    //levelmode(new QWidget)
+    //levelmode(new QVBoxLayout(parent))
 {
     ui -> setupUi(this);
     ui -> graphicsView -> setScene(scene);
 
     enemy = new Enemy(this); // so the HP can flow on scene
-    scene -> addItem(player);
-    scene -> addItem(enemy);
+    static_cast<Enemy *>(enemy) -> setHPvisible(false);
 
     timer -> start(10);
     timerRF -> start(100);
@@ -38,7 +37,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui -> hp5 -> setPixmap(QPixmap(":/images/playerHP").scaled(30,30));
 
     connect(timerRF, SIGNAL(timeout()), this, SLOT(checkHP()));
-    connect(timerRF, SIGNAL(timeout()), this, SLOT(bullet_track_control()));
     //QLabel label;
     QMovie *movie = new QMovie(":/images/bat");
     //label.setMovie(movie);
@@ -73,57 +71,64 @@ MainWindow::~MainWindow()
 void MainWindow::keyPressEvent(QKeyEvent *e)
 {
     //border:x:40-440 y:20-620
-    switch(e -> key()) {
-    case Qt::Key_Up:
-    case Qt::Key_W:
-        if(player -> y() >= 20 + 10) //border + a move
-            player -> setPos(player -> x(), player -> y() - 10);
-        else if(player -> y() < 20 + 10) //a move will beyond border
-            player -> setPos(player -> x(), 20);  //make player on border
-        break;
-    case Qt::Key_Down:
-    case Qt::Key_S:
-        if(player -> y() < 620 - player->getH() - 10)
-            player -> setPos(player -> x(), player -> y() + 10);
-        else if(player -> y() >= 620 - player->getH() - 10)
-            player -> setPos(player -> x(), 620 - player->getH());
-        break;
-    case Qt::Key_Left:
-    case Qt::Key_A:
-        if(player -> x() >= 40 + 10)
-            player -> setPos(player -> x() - 10, player -> y());
-        else if(player -> x() < 40 + 10)
-            player -> setPos(40, player -> y());
-        break;
-    case Qt::Key_Right:
-    case Qt::Key_D:
-        if(player -> x() < 440 - player->getW() - 10)
-            player -> setPos(player -> x() + 10, player -> y());
-        else if(player -> x() >= 440 - player->getW() - 10)
-            player -> setPos(440 - player->getW(), player -> y());
-        break;
+    if(stopState == false){
+        switch(e -> key()) {
+        case Qt::Key_Up:
+        case Qt::Key_W:
+            if(player -> y() >= 20 + 10) //border + a move
+                player -> setPos(player -> x(), player -> y() - 10);
+            else if(player -> y() < 20 + 10) //a move will beyond border
+                player -> setPos(player -> x(), 20);  //make player on border
+            break;
+        case Qt::Key_Down:
+        case Qt::Key_S:
+            if(player -> y() < 620 - player->getH() - 10)
+                player -> setPos(player -> x(), player -> y() + 10);
+            else if(player -> y() >= 620 - player->getH() - 10)
+                player -> setPos(player -> x(), 620 - player->getH());
+            break;
+        case Qt::Key_Left:
+        case Qt::Key_A:
+            if(player -> x() >= 40 + 10)
+                player -> setPos(player -> x() - 10, player -> y());
+            else if(player -> x() < 40 + 10)
+                player -> setPos(40, player -> y());
+            break;
+        case Qt::Key_Right:
+        case Qt::Key_D:
+            if(player -> x() < 440 - player->getW() - 10)
+                player -> setPos(player -> x() + 10, player -> y());
+            else if(player -> x() >= 440 - player->getW() - 10)
+                player -> setPos(440 - player->getW(), player -> y());
+            break;
+        }
+    } else {
+        e -> ignore();
     }
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *e)
 {
+    if(stopState == false){
+        if(e -> type() == QEvent::MouseButtonPress){
+            Bullet *b = new Bullet;
+            b -> MysetPixmap(QPixmap(":/images/bullet1").scaled(5,20));
+            b -> setPos(player->x() + player->getW() / 2 + b->pixmap().width(), player->y() - b->pixmap().height());
+            b -> connect(timer, SIGNAL(timeout()), b, SLOT(fly()));
+            connect(b, SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+            scene->addItem(static_cast<QGraphicsPixmapItem*>(b));
 
-    if(e -> type() == QEvent::MouseButtonPress){
-        Bullet *b = new Bullet;
-        b -> MysetPixmap(QPixmap(":/images/bullet1").scaled(5,20));
-        b -> setPos(player->x() + player->getW() / 2 + b->pixmap().width(), player->y() - b->pixmap().height());
-        b -> connect(timer, SIGNAL(timeout()), b, SLOT(fly()));
-        connect(b, SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
-        scene->addItem(static_cast<QGraphicsPixmapItem*>(b));
 
 
-
-        Bullet *c = new Bullet;
-        c -> MysetPixmap(QPixmap(":/images/bullet1").scaled(5,20));
-        c -> setPos(player->x() + player->getW() / 2 - 2*c->pixmap().width(), player->y() - c->pixmap().height());
-        c -> connect(timer, SIGNAL(timeout()), c, SLOT(fly()));
-        connect(c, SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
-        scene->addItem(static_cast<QGraphicsPixmapItem*>(c));
+            Bullet *c = new Bullet;
+            c -> MysetPixmap(QPixmap(":/images/bullet1").scaled(5,20));
+            c -> setPos(player->x() + player->getW() / 2 - 2*c->pixmap().width(), player->y() - c->pixmap().height());
+            c -> connect(timer, SIGNAL(timeout()), c, SLOT(fly()));
+            connect(c, SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+            scene->addItem(static_cast<QGraphicsPixmapItem*>(c));
+        }
+    } else {
+        e -> ignore();
     }
 }
 
@@ -133,12 +138,12 @@ void MainWindow::mousePressEvent(QMouseEvent *e)
 void MainWindow::on_rapid_fire_clicked()
 {
     if(ui -> rapid_fire -> isChecked()){
-            Bullet *b = new Bullet;
-            b -> MysetPixmap(QPixmap(":/images/bullet1").scaled(5,20));
-            b -> setPos(player->x() + player->getW() / 2 - b->pixmap().width() / 2, player->y() - b->pixmap().height());
-            b -> connect(timer, SIGNAL(timeout()), b, SLOT(fly()));
-            connect(b, SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
-            scene->addItem(static_cast<QGraphicsPixmapItem*>(b));
+        Bullet *b = new Bullet;
+        b -> MysetPixmap(QPixmap(":/images/bullet1").scaled(5,20));
+        b -> setPos(player->x() + player->getW() / 2 - b->pixmap().width() / 2, player->y() - b->pixmap().height());
+        b -> connect(timer, SIGNAL(timeout()), b, SLOT(fly()));
+        connect(b, SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+        scene->addItem(static_cast<QGraphicsPixmapItem*>(b));
     }
 }
 
@@ -194,6 +199,10 @@ void MainWindow::hit(Bullet *b){
 
 void MainWindow::on_start_clicked()
 {
+    scene -> addItem(player);
+    scene -> addItem(enemy);
+
+    static_cast<Enemy *>(enemy) -> setHPvisible(true);
     while(enemy -> getHp() < 100){
         enemy -> recover(1);
 
@@ -206,7 +215,29 @@ void MainWindow::on_start_clicked()
     connect(timerES, SIGNAL(timeout()), this, SLOT(enemy_shoot()));
     connect(timerRF, SIGNAL(timeout()), this, SLOT(on_rapid_fire_clicked()));
     connect(timerRF, SIGNAL(timeout()), this, SLOT(enemy_move()));
+    connect(timerRF, SIGNAL(timeout()), this, SLOT(bullet_track_control()));
+    stopState = false;
 
+
+}
+
+void MainWindow::on_pause_clicked()
+{
+    if(ui -> pause -> text() == "pause"){
+        disconnect(timerES, SIGNAL(timeout()), this, SLOT(enemy_shoot()));
+        disconnect(timerRF, SIGNAL(timeout()), this, SLOT(on_rapid_fire_clicked()));
+        disconnect(timerRF, SIGNAL(timeout()), this, SLOT(enemy_move()));
+        disconnect(timerRF, SIGNAL(timeout()), this, SLOT(bullet_track_control()));
+        ui -> pause -> setText("resume");
+        stopState = true;
+    } else if(ui -> pause -> text() == "resume"){
+        connect(timerES, SIGNAL(timeout()), this, SLOT(enemy_shoot()));
+        connect(timerRF, SIGNAL(timeout()), this, SLOT(on_rapid_fire_clicked()));
+        connect(timerRF, SIGNAL(timeout()), this, SLOT(enemy_move()));
+        connect(timerRF, SIGNAL(timeout()), this, SLOT(bullet_track_control()));
+        ui -> pause -> setText("pause");
+        stopState = false;
+    }
 }
 
 void MainWindow::enemy_shoot(){
@@ -232,6 +263,21 @@ void MainWindow::on_stop_clicked()
     disconnect(timerES, SIGNAL(timeout()), this, SLOT(enemy_shoot()));
     disconnect(timerRF, SIGNAL(timeout()), this, SLOT(on_rapid_fire_clicked()));
     disconnect(timerRF, SIGNAL(timeout()), this, SLOT(enemy_move()));
+    disconnect(timerRF, SIGNAL(timeout()), this, SLOT(bullet_track_control()));
+    stopState = true;
+    //QList list(scene -> items());
+    //list = scene -> items();
+
+    int size, i;
+    //size = scene -> items().size();
+    while(scene->items().size() != 0){
+        for(i = 0; i < scene ->items().size(); i++){
+            QGraphicsItem const *gpi = scene -> items().at(i);
+            scene -> removeItem(scene->items().at(i));
+            delete gpi;
+        }
+    }
+    static_cast<Enemy *>(enemy) -> setHPvisible(false);
 }
 
 void MainWindow::enemy_move(){
@@ -289,23 +335,50 @@ void MainWindow::bullet_track_control(){
 }
 
 void MainWindow::tolevelMode(){
-    levelmode -> setVisible(true);
-    //ui ->playmode -> setVisible(false);
+    //levelmode -> setVisible(true);
+    //ui ->player_status -> setVisible(false);
+    ui ->boss->setVisible(false);
+    ui ->gameover->setVisible(false);
+    ui ->graphicsView->setVisible(false);
+    static_cast<Enemy *>(enemy) -> setHPvisible(false);
+    setLevelMode();
 }
 
 void MainWindow::toplayMode(){
-    levelmode -> setVisible(false);
-    //ui -> playmode -> setVisible(true);
 
+    ui ->boss->setVisible(true);
+    ui ->gameover->setVisible(true);
+    ui ->graphicsView->setVisible(true);
+    static_cast<Enemy *>(enemy) -> setHPvisible(true);
+    int i = 0;
+    while(i < ui -> levelMode -> columnCount()*ui -> levelMode -> rowCount()){
+        QWidget* widget = ui -> levelMode -> itemAt(i++) -> widget();
+        widget->deleteLater();
+    }
 }
 
 void MainWindow::setLevelMode(){
     QPushButton *level[9];
 
     for(int i = 0; i < 9; i++){
-        level[i] = new QPushButton(QString::number(i+1), levelmode);
-        level[i] ->setGeometry(100+20*(i%3), 40 + 20*(i/3), 10, 10);
+        level[i] = new QPushButton(QString::number(i+1), this);
+        //level[i] -> setGeometry(100+20*(i%3), 40 + 20*(i/3), 10, 10);
+        level[i] -> setFixedHeight(100);
+        level[i] -> setFixedWidth(100);
+        //QLayoutItem *li = new QLayoutItem();
 
+        ui -> levelMode -> addWidget(level[i], i/3, i%3);
+                //addWidget(level[i]);
     }
 
+    QRect rect;
+    rect.setHeight(100);
+    rect.setWidth(100);
+    rect.setX(0);
+    rect.setY(0);
+    //levelmode->setGeometry(rect);
+
+
 }
+
+

@@ -6,6 +6,7 @@
 #include <QGraphicsPixmapItem>
 #include <QKeyEvent>
 #include <QTimer>
+#include <QVBoxLayout>
 
 #include "bullet.h"
 #include "player.h"
@@ -45,6 +46,8 @@ private slots:
 
     void bullet_track_control();
 
+    void on_pause_clicked();
+
 signals:
     void bullet_track(int x, int y);
 
@@ -58,7 +61,7 @@ private:
     QTimer *timerRF; //every timeout shoot one//Rapid Fire
     QTimer *timerES; //every timeout shoot one//Enemy Shoot
 
-    QWidget *levelmode;
+    //QVBoxLayout *levelmode;
     void setLevelMode();
 
     QAction *levelAction;
@@ -69,6 +72,7 @@ private:
     int enemy_move_cycle;
     int bullet_move_cycle;
 
+    bool stopState;
 };
 
 #endif // MAINWINDOW_H

@@ -82,7 +82,7 @@
       <height>431</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout_2">
+    <layout class="QVBoxLayout" name="player_status">
      <item>
       <layout class="QHBoxLayout" name="playerHP">
        <property name="spacing">
@@ -218,6 +218,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="pause">
+       <property name="text">
+        <string>pause</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="stop">
        <property name="text">
         <string>stop</string>
@@ -232,6 +239,17 @@
       </widget>
      </item>
     </layout>
+   </widget>
+   <widget class="QWidget" name="gridLayoutWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>451</width>
+      <height>611</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="levelMode"/>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">

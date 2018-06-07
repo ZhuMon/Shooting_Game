@@ -15,6 +15,7 @@ public:
     //void recover(int point);
     virtual void damage(int point);
     virtual void recover(int point);
+    void setHPvisible(bool visible);
 
 private:
     QProgressBar *HPpercent;

@@ -39,3 +39,6 @@ void Enemy::recover(int point){
     HPpercent -> setValue(HP);
 }
 
+void Enemy::setHPvisible(bool visible){
+    HPpercent -> setVisible(visible);
+}

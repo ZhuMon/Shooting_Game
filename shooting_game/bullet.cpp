@@ -23,7 +23,10 @@ void Bullet::fly(int mX, int mY){
         else
             this -> setPos(x() + pX, y() + s + pY);
     if(y() < 20 || y() > 620 || x() < 40 || x() > 440) {
-        this->scene()->removeItem(this);
+
+        //scene() -> addItem(this);
+        scene() -> removeItem(this);
+
         delete this;
     }
     emit bulletFly(this);
