@@ -45,7 +45,7 @@ void Bullet::MysetPixmap(const QPixmap &pixmap){
     this -> setPixmap(Qp);
 }
 
-void Bullet::MysetPos(Player *p, int posOfClock){
+void Bullet::MysetPos(Character *p, int posOfClock){
     switch(posOfClock){
     case 1:
         setPos(p -> x() + p -> getW()*3/4 , p -> y());

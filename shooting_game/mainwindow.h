@@ -48,6 +48,12 @@ private slots:
 
     void on_pause_clicked();
 
+    void on_doubleshot_clicked();
+
+    void check_skill_cd();
+
+    void on_heal_clicked();
+
 signals:
     void bullet_track(int x, int y);
 
@@ -72,8 +78,10 @@ private:
 
     int enemy_move_cycle;
     int bullet_move_cycle;
+    int skill_cd_cycle;
 
     bool stopState;
+    int doubleShotState; //0:one shot  1~5:two shot
 };
 
 #endif // MAINWINDOW_H

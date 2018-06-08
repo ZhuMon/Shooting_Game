@@ -8,5 +8,7 @@
 		<file alias="bossgif">boss.gif</file>
 		<file alias="bullet2">bullet2.png</file>
 		<file alias="bat">bat_enemy1.gif</file>
+		<file alias="doublebullet">doublebullet1.png</file>
+		<file alias="heal">heal.png</file>
     	</qresource>
 </RCC>

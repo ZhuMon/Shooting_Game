@@ -17,7 +17,8 @@ MainWindow::MainWindow(QWidget *parent) :
     player(new Player),
     //enemy(new Enemy(this)),
     enemy_move_cycle(0),
-    bullet_move_cycle(0)
+    bullet_move_cycle(0),
+    doubleShotState(0)
     //levelmode(new QVBoxLayout(parent))
 {
     ui -> setupUi(this);
@@ -41,6 +42,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMovie *movie = new QMovie(":/images/bat");
     //label.setMovie(movie);
     movie ->setScaledSize(QSize(200,160));
+
     ui -> boss -> setMovie(movie);
 
     movie -> start();
@@ -61,6 +63,19 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui -> pause -> setVisible(false);
 
+    QIcon icon, icon1;
+    icon.addPixmap(QPixmap(":/images/doublebullet"));
+    ui -> doubleshot -> setIcon(icon);
+    ui -> doubleshot -> setIconSize(QSize(50, 50));
+
+    icon1.addPixmap(QPixmap(":/images/heal"));
+    ui -> heal -> setIcon(icon1);
+    ui -> heal -> setIconSize(QSize(50,50));
+
+    QPalette pal;
+    pal.setColor(QPalette::Highlight,Qt::gray);
+    ui -> doubleshot_cd -> setPalette(pal);
+    ui -> heal_cd -> setPalette(pal);
 }
 
 MainWindow::~MainWindow()
@@ -113,19 +128,25 @@ void MainWindow::mousePressEvent(QMouseEvent *e)
         if(e -> type() == QEvent::MouseButtonPress){
             Bullet *b = new Bullet;
             b -> MysetPixmap(QPixmap(":/images/bullet1").scaled(5,20));
-            b -> setPos(player->x() + player->getW() / 2 + b->pixmap().width(), player->y() - b->pixmap().height());
+            //b -> setPos(player->x() + player->getW() / 2 + b->pixmap().width(), player->y() - b->pixmap().height());
+            if(doubleShotState > 0)
+                b -> MysetPos(player, 11);
+            else
+                b -> MysetPos(player, 12);
             b -> connect(timer, SIGNAL(timeout()), b, SLOT(fly()));
             connect(b, SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
             scene->addItem(static_cast<QGraphicsPixmapItem*>(b));
 
 
-
-            Bullet *c = new Bullet;
-            c -> MysetPixmap(QPixmap(":/images/bullet1").scaled(5,20));
-            c -> setPos(player->x() + player->getW() / 2 - 2*c->pixmap().width(), player->y() - c->pixmap().height());
-            c -> connect(timer, SIGNAL(timeout()), c, SLOT(fly()));
-            connect(c, SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
-            scene->addItem(static_cast<QGraphicsPixmapItem*>(c));
+            if(doubleShotState > 0){
+                Bullet *c = new Bullet;
+                c -> MysetPixmap(QPixmap(":/images/bullet1").scaled(5,20));
+                //c -> setPos(player->x() + player->getW() / 2 - 2*c->pixmap().width(), player->y() - c->pixmap().height());
+                c -> MysetPos(player, 1);
+                c -> connect(timer, SIGNAL(timeout()), c, SLOT(fly()));
+                connect(c, SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+                scene->addItem(static_cast<QGraphicsPixmapItem*>(c));
+            }
         }
     } else {
         e -> ignore();
@@ -214,6 +235,8 @@ void MainWindow::on_start_clicked()
     connect(timerRF, SIGNAL(timeout()), this, SLOT(on_rapid_fire_clicked()));
     connect(timerRF, SIGNAL(timeout()), this, SLOT(enemy_move()));
     connect(timerRF, SIGNAL(timeout()), this, SLOT(bullet_track_control()));
+    connect(timerES, SIGNAL(timeout()), this, SLOT(check_skill_cd()));
+
     stopState = false;
 
     ui -> start -> setVisible(false); //avoid double click
@@ -221,6 +244,14 @@ void MainWindow::on_start_clicked()
     ui -> pause -> setText("pause");
 
     enemy_move_cycle = 0;
+
+    ui -> doubleshot_cd -> setValue(0);
+    ui -> doubleshot -> setEnabled(false);
+
+    ui -> heal_cd -> setValue(0);
+    ui -> heal -> setEnabled(false);
+
+
 }
 
 void MainWindow::on_pause_clicked()
@@ -230,6 +261,8 @@ void MainWindow::on_pause_clicked()
         disconnect(timerRF, SIGNAL(timeout()), this, SLOT(on_rapid_fire_clicked()));
         disconnect(timerRF, SIGNAL(timeout()), this, SLOT(enemy_move()));
         disconnect(timerRF, SIGNAL(timeout()), this, SLOT(bullet_track_control()));
+        disconnect(timerES, SIGNAL(timeout()), this, SLOT(check_skill_cd()));
+
         ui -> pause -> setText("resume");
         stopState = true;
     } else if(ui -> pause -> text() == "resume"){
@@ -237,6 +270,8 @@ void MainWindow::on_pause_clicked()
         connect(timerRF, SIGNAL(timeout()), this, SLOT(on_rapid_fire_clicked()));
         connect(timerRF, SIGNAL(timeout()), this, SLOT(enemy_move()));
         connect(timerRF, SIGNAL(timeout()), this, SLOT(bullet_track_control()));
+        connect(timerES, SIGNAL(timeout()), this, SLOT(check_skill_cd()));
+
         ui -> pause -> setText("pause");
         stopState = false;
     }
@@ -266,6 +301,7 @@ void MainWindow::on_stop_clicked()
     disconnect(timerRF, SIGNAL(timeout()), this, SLOT(on_rapid_fire_clicked()));
     disconnect(timerRF, SIGNAL(timeout()), this, SLOT(enemy_move()));
     disconnect(timerRF, SIGNAL(timeout()), this, SLOT(bullet_track_control()));
+    disconnect(timerES, SIGNAL(timeout()), this, SLOT(check_skill_cd()));
     stopState = true;
     //QList list(scene -> items());
     //list = scene -> items();
@@ -395,4 +431,45 @@ void MainWindow::setLevelMode(){
 
 }
 
+void MainWindow::check_skill_cd(){
+    //skill_cd_cycle++;
 
+    QPalette pal;
+    if(doubleShotState == 5){
+        doubleShotState = 0;
+    } else if(doubleShotState > 0){
+        doubleShotState += 1;
+    } else if(ui -> doubleshot_cd -> value() < 20){ //cd = 20s
+        ui -> doubleshot_cd -> setValue(ui -> doubleshot_cd -> value() + 1);
+        pal.setColor(QPalette::Highlight,Qt::gray);
+        ui -> doubleshot_cd -> setPalette(pal);
+    } else {
+        ui -> doubleshot -> setEnabled(true);
+        pal.setColor(QPalette::Highlight,Qt::blue);
+        ui -> doubleshot_cd -> setPalette(pal);
+    }
+
+    if(ui -> heal_cd -> value() < 40){
+        ui -> heal_cd-> setValue(ui -> heal_cd -> value() + 1);
+        pal.setColor(QPalette::Highlight,Qt::gray);
+        ui -> heal_cd -> setPalette(pal);
+    } else {
+        ui -> heal -> setEnabled(true);
+        pal.setColor(QPalette::Highlight,Qt::green);
+        ui -> heal_cd -> setPalette(pal);
+    }
+}
+
+void MainWindow::on_doubleshot_clicked()
+{
+    doubleShotState = 1;
+    ui -> doubleshot_cd -> setValue(0);
+    ui -> doubleshot -> setEnabled(false);
+}
+
+void MainWindow::on_heal_clicked()
+{
+    player -> recover(1);
+    ui -> heal -> setEnabled(false);
+    ui -> heal_cd -> setValue(0);
+}

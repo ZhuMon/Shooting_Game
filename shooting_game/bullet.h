@@ -3,7 +3,7 @@
 #include <QObject>
 #include <QGraphicsPixmapItem>
 #include <QGraphicsScene>
-#include "player.h"
+#include "character.h"
 
 class Bullet: public QObject, public QGraphicsPixmapItem
 {
@@ -13,7 +13,7 @@ public:
     Bullet(int who = 0, int s = 3, int dx = 0, int dy = 0);
     Bullet(QPixmap Qp, int who = 0, int s = 3, int dx = 0, int dy = 0);
     void MysetPixmap(const QPixmap &pixmap);
-    void MysetPos(Player *p, int posOfClock = 6);
+    void MysetPos(Character *p, int posOfClock = 6);
     int whoShot();
     int getSpeed();
     int pX, pY; //when begin where bullet go
