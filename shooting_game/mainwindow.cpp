@@ -63,7 +63,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui -> pause -> setVisible(false);
 
-    QIcon icon, icon1;
+    QIcon icon, icon1, icon2;
     icon.addPixmap(QPixmap(":/images/doublebullet"));
     ui -> doubleshot -> setIcon(icon);
     ui -> doubleshot -> setIconSize(QSize(50, 50));
@@ -72,10 +72,24 @@ MainWindow::MainWindow(QWidget *parent) :
     ui -> heal -> setIcon(icon1);
     ui -> heal -> setIconSize(QSize(50,50));
 
+    icon2.addPixmap(QPixmap(":/images/rapidfire"));
+    ui -> rapidfire -> setIcon(icon2);
+    ui -> rapidfire -> setIconSize(QSize(50,50));
+
     QPalette pal;
     pal.setColor(QPalette::Highlight,Qt::gray);
     ui -> doubleshot_cd -> setPalette(pal);
     ui -> heal_cd -> setPalette(pal);
+    ui -> rapidfire_cd -> setPalette(pal);
+
+    ui -> doubleshot_cd -> setValue(0);
+    ui -> doubleshot -> setEnabled(false);
+
+    ui -> heal_cd -> setValue(0);
+    ui -> heal -> setEnabled(false);
+
+    ui -> rapidfire_cd -> setValue(0);
+    ui -> rapidfire -> setEnabled(false);
 }
 
 MainWindow::~MainWindow()
@@ -153,21 +167,6 @@ void MainWindow::mousePressEvent(QMouseEvent *e)
     }
 }
 
-
-
-
-void MainWindow::on_rapid_fire_clicked()
-{
-    if(ui -> rapid_fire -> isChecked()){
-        Bullet *b = new Bullet;
-        b -> MysetPixmap(QPixmap(":/images/bullet1").scaled(5,20));
-        b -> setPos(player->x() + player->getW() / 2 - b->pixmap().width() / 2, player->y() - b->pixmap().height());
-        b -> connect(timer, SIGNAL(timeout()), b, SLOT(fly()));
-        connect(b, SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
-        scene->addItem(static_cast<QGraphicsPixmapItem*>(b));
-    }
-}
-
 void MainWindow::checkHP(){
 
 
@@ -232,7 +231,6 @@ void MainWindow::on_start_clicked()
 
 
     connect(timerES, SIGNAL(timeout()), this, SLOT(enemy_shoot()));
-    connect(timerRF, SIGNAL(timeout()), this, SLOT(on_rapid_fire_clicked()));
     connect(timerRF, SIGNAL(timeout()), this, SLOT(enemy_move()));
     connect(timerRF, SIGNAL(timeout()), this, SLOT(bullet_track_control()));
     connect(timerES, SIGNAL(timeout()), this, SLOT(check_skill_cd()));
@@ -251,6 +249,8 @@ void MainWindow::on_start_clicked()
     ui -> heal_cd -> setValue(0);
     ui -> heal -> setEnabled(false);
 
+    ui -> rapidfire_cd -> setValue(0);
+    ui -> rapidfire -> setEnabled(false);
 
 }
 
@@ -258,7 +258,8 @@ void MainWindow::on_pause_clicked()
 {
     if(ui -> pause -> text() == "pause"){
         disconnect(timerES, SIGNAL(timeout()), this, SLOT(enemy_shoot()));
-        disconnect(timerRF, SIGNAL(timeout()), this, SLOT(on_rapid_fire_clicked()));
+        if(rapidFireState > 0)
+            disconnect(timerRF, SIGNAL(timeout()), this, SLOT(player_shoot()));
         disconnect(timerRF, SIGNAL(timeout()), this, SLOT(enemy_move()));
         disconnect(timerRF, SIGNAL(timeout()), this, SLOT(bullet_track_control()));
         disconnect(timerES, SIGNAL(timeout()), this, SLOT(check_skill_cd()));
@@ -267,7 +268,8 @@ void MainWindow::on_pause_clicked()
         stopState = true;
     } else if(ui -> pause -> text() == "resume"){
         connect(timerES, SIGNAL(timeout()), this, SLOT(enemy_shoot()));
-        connect(timerRF, SIGNAL(timeout()), this, SLOT(on_rapid_fire_clicked()));
+        if(rapidFireState > 0)
+            connect(timerRF, SIGNAL(timeout()), this, SLOT(player_shoot()));
         connect(timerRF, SIGNAL(timeout()), this, SLOT(enemy_move()));
         connect(timerRF, SIGNAL(timeout()), this, SLOT(bullet_track_control()));
         connect(timerES, SIGNAL(timeout()), this, SLOT(check_skill_cd()));
@@ -298,7 +300,8 @@ void MainWindow::enemy_shoot(){
 void MainWindow::on_stop_clicked()
 {
     disconnect(timerES, SIGNAL(timeout()), this, SLOT(enemy_shoot()));
-    disconnect(timerRF, SIGNAL(timeout()), this, SLOT(on_rapid_fire_clicked()));
+    if(rapidFireState > 0)
+        disconnect(timerRF, SIGNAL(timeout()), this, SLOT(player_shoot()));
     disconnect(timerRF, SIGNAL(timeout()), this, SLOT(enemy_move()));
     disconnect(timerRF, SIGNAL(timeout()), this, SLOT(bullet_track_control()));
     disconnect(timerES, SIGNAL(timeout()), this, SLOT(check_skill_cd()));
@@ -458,6 +461,21 @@ void MainWindow::check_skill_cd(){
         pal.setColor(QPalette::Highlight,Qt::green);
         ui -> heal_cd -> setPalette(pal);
     }
+
+    if(rapidFireState == 3){
+        rapidFireState = 0;
+        disconnect(timerRF, SIGNAL(timeout()), this, SLOT(player_shoot()));
+    } else if(rapidFireState > 0){
+        rapidFireState += 1;
+    } else if(ui -> rapidfire_cd -> value() < 30){
+        ui -> rapidfire_cd-> setValue(ui -> rapidfire_cd -> value() + 1);
+        pal.setColor(QPalette::Highlight,Qt::gray);
+        ui -> rapidfire_cd -> setPalette(pal);
+    } else {
+        ui -> rapidfire -> setEnabled(true);
+        pal.setColor(QPalette::Highlight,Qt::red);
+        ui -> rapidfire_cd -> setPalette(pal);
+    }
 }
 
 void MainWindow::on_doubleshot_clicked()
@@ -472,4 +490,27 @@ void MainWindow::on_heal_clicked()
     player -> recover(1);
     ui -> heal -> setEnabled(false);
     ui -> heal_cd -> setValue(0);
+}
+
+void MainWindow::player_shoot()
+{
+
+    if(rapidFireState > 0){
+        Bullet *b = new Bullet;
+        b -> MysetPixmap(QPixmap(":/images/bullet1").scaled(5,20));
+        //b -> setPos(player->x() + player->getW() / 2 - b->pixmap().width() / 2, player->y() - b->pixmap().height());
+        b -> MysetPos(player, 12);
+        b -> connect(timer, SIGNAL(timeout()), b, SLOT(fly()));
+        connect(b, SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+        scene->addItem(static_cast<QGraphicsPixmapItem*>(b));
+    }
+}
+
+void MainWindow::on_rapidfire_clicked()
+{
+
+    rapidFireState = 1;
+    ui -> rapidfire -> setEnabled(false);
+    connect(timerRF, SIGNAL(timeout()), this, SLOT(player_shoot()));
+    ui -> rapidfire_cd -> setValue(0);
 }

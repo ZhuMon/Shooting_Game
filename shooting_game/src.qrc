@@ -10,5 +10,6 @@
 		<file alias="bat">bat_enemy1.gif</file>
 		<file alias="doublebullet">doublebullet1.png</file>
 		<file alias="heal">heal.png</file>
+		<file alias="rapidfire">rapid_fire.png</file>
     	</qresource>
 </RCC>

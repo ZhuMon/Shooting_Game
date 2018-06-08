@@ -30,7 +30,7 @@ public slots:
 
 
 private slots:
-    void on_rapid_fire_clicked();
+    void player_shoot();
 
     void checkHP();
 
@@ -53,6 +53,8 @@ private slots:
     void check_skill_cd();
 
     void on_heal_clicked();
+
+    void on_rapidfire_clicked();
 
 signals:
     void bullet_track(int x, int y);
@@ -82,6 +84,7 @@ private:
 
     bool stopState;
     int doubleShotState; //0:one shot  1~5:two shot
+    int rapidFireState;  //0:no 1~3:rapid
 };
 
 #endif // MAINWINDOW_H
