@@ -33,3 +33,8 @@ void Character::setImage(const QPixmap &Qp, float w){
     height = height * (w/width);
     width = w;
 }
+
+void Character::initial(){
+    setPos(X0, Y0);
+    HP = initHP;
+}

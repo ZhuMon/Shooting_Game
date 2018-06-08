@@ -59,7 +59,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui -> mainToolBar -> addAction(playAction);
     statusBar() ;
 
-
+    ui -> pause -> setVisible(false);
 
 }
 
@@ -203,14 +203,12 @@ void MainWindow::on_start_clicked()
     scene -> addItem(enemy);
 
     static_cast<Enemy *>(enemy) -> setHPvisible(true);
-    while(enemy -> getHp() < 100){
-        enemy -> recover(1);
 
-    }
+    enemy -> initial();
+    player -> initial();
+
     ui -> gameover -> setText("");
-    while(player -> getHp() < 5){
-        player -> recover(1);
-    }
+
 
     connect(timerES, SIGNAL(timeout()), this, SLOT(enemy_shoot()));
     connect(timerRF, SIGNAL(timeout()), this, SLOT(on_rapid_fire_clicked()));
@@ -218,7 +216,9 @@ void MainWindow::on_start_clicked()
     connect(timerRF, SIGNAL(timeout()), this, SLOT(bullet_track_control()));
     stopState = false;
 
-
+    ui -> start -> setVisible(false); //avoid double click
+    ui -> pause -> setVisible(true);  //avoid pause stop resume
+    ui -> pause -> setText("pause");
 }
 
 void MainWindow::on_pause_clicked()
@@ -268,21 +268,25 @@ void MainWindow::on_stop_clicked()
     //QList list(scene -> items());
     //list = scene -> items();
 
-    int size, i;
-    //size = scene -> items().size();
+    int i;
     while(scene->items().size() != 0){
         for(i = 0; i < scene ->items().size(); i++){
-            QGraphicsItem const *gpi = scene -> items().at(i);
-            scene -> removeItem(scene->items().at(i));
-            delete gpi;
+            //QGraphicsItem const *gpi = scene -> items().at(i);
+
+            scene -> items().at(i) -> setPos(0,0);
+            scene -> removeItem(scene -> items().at(i));
         }
     }
+
     static_cast<Enemy *>(enemy) -> setHPvisible(false);
+
+    ui -> start -> setVisible(true);
+    ui -> pause -> setVisible(false); //avoid pause stop resume
 }
 
 void MainWindow::enemy_move(){
     enemy_move_cycle++;
-    if(enemy_move_cycle == 100){ //10s
+    if(enemy_move_cycle == 100 || stopState == true){ //10s or stop
         enemy_move_cycle = 0;
         return;
     } else if(enemy_move_cycle < 25) { //2.5s
@@ -340,8 +344,10 @@ void MainWindow::tolevelMode(){
     ui ->boss->setVisible(false);
     ui ->gameover->setVisible(false);
     ui ->graphicsView->setVisible(false);
-    static_cast<Enemy *>(enemy) -> setHPvisible(false);
+    //static_cast<Enemy *>(enemy) -> setHPvisible(false);
+
     setLevelMode();
+    on_stop_clicked();
 }
 
 void MainWindow::toplayMode(){
@@ -349,7 +355,7 @@ void MainWindow::toplayMode(){
     ui ->boss->setVisible(true);
     ui ->gameover->setVisible(true);
     ui ->graphicsView->setVisible(true);
-    static_cast<Enemy *>(enemy) -> setHPvisible(true);
+
     int i = 0;
     while(i < ui -> levelMode -> columnCount()*ui -> levelMode -> rowCount()){
         QWidget* widget = ui -> levelMode -> itemAt(i++) -> widget();

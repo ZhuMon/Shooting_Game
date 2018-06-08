@@ -25,7 +25,7 @@ void Bullet::fly(int mX, int mY){
     if(y() < 20 || y() > 620 || x() < 40 || x() > 440) {
 
         //scene() -> addItem(this);
-        scene() -> removeItem(this);
+        //scene() -> removeItem(this);
 
         delete this;
     }

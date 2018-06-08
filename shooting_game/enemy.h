@@ -16,9 +16,11 @@ public:
     virtual void damage(int point);
     virtual void recover(int point);
     void setHPvisible(bool visible);
+    virtual void initial();
 
 private:
     QProgressBar *HPpercent;
+    QWidget *w;
     //int HP;
     //int height, width;
 };

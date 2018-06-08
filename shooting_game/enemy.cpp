@@ -10,17 +10,19 @@ Enemy::Enemy(QWidget *parent)
     setImage(QPixmap(":/images/boss"), 150);
     //setMovie(QMovie(":/images/bossgif"));
     setPos(150, 50);
-
+    X0 = 150;
+    Y0 = 50;
 
     HPpercent = new QProgressBar(parent);
     HPpercent -> setGeometry(150,70, 150, 10);
     //HPpercent -> setVisible(true);
     HPpercent -> setValue(100);
+
     QPalette pal;
     pal.setColor(QPalette::Highlight,Qt::red);
     HPpercent -> setPalette(pal);
-    HP = 100;
 
+    initHP = HP = 100;
 
 }
 
@@ -40,5 +42,13 @@ void Enemy::recover(int point){
 }
 
 void Enemy::setHPvisible(bool visible){
-    HPpercent -> setVisible(visible);
+    this -> HPpercent -> setVisible(visible);
+    //w-> setVisible(false);
+}
+
+void Enemy::initial(){
+    setPos(X0, Y0);
+    HP = initHP;
+    HPpercent -> setGeometry(150,70, 150, 10);
+    HPpercent -> setValue(100);
 }
