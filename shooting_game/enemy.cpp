@@ -27,8 +27,15 @@ Enemy::Enemy(QWidget *parent)
 }
 
 void Enemy::myMove(int x, int y){
-    setPos(this -> x() + x, this -> y() + y);
-    HPpercent ->setGeometry(HPpercent->x()+x, HPpercent->y()+y, HPpercent->width(), HPpercent->height());
+    if(this->y() + y > 20 && this->y() + y < 620){
+        setY(this->y() + y);
+        HPpercent ->setGeometry(HPpercent->x(), HPpercent->y()+y, HPpercent->width(), HPpercent->height());
+    }
+    if(this->x() + x > 40 && this->x() + x < 440) {
+        setX(this->x() + x);
+        HPpercent ->setGeometry(HPpercent->x()+x, HPpercent->y(), HPpercent->width(), HPpercent->height());
+    }
+
 }
 
 void Enemy::damage(int point){

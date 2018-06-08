@@ -165,7 +165,7 @@ void MainWindow::checkHP(){
         break;
     }
 
-    if(player -> getHp() == 0){
+    if(player -> getHp() <= 0){
         ui -> gameover -> setText("GameOver");
         on_stop_clicked();
     }
@@ -219,6 +219,8 @@ void MainWindow::on_start_clicked()
     ui -> start -> setVisible(false); //avoid double click
     ui -> pause -> setVisible(true);  //avoid pause stop resume
     ui -> pause -> setText("pause");
+
+    enemy_move_cycle = 0;
 }
 
 void MainWindow::on_pause_clicked()
@@ -286,7 +288,7 @@ void MainWindow::on_stop_clicked()
 
 void MainWindow::enemy_move(){
     enemy_move_cycle++;
-    if(enemy_move_cycle == 100 || stopState == true){ //10s or stop
+    if(enemy_move_cycle == 100 ){ //10s or stop
         enemy_move_cycle = 0;
         return;
     } else if(enemy_move_cycle < 25) { //2.5s
@@ -344,6 +346,9 @@ void MainWindow::tolevelMode(){
     ui ->boss->setVisible(false);
     ui ->gameover->setVisible(false);
     ui ->graphicsView->setVisible(false);
+    ui ->gridLayoutWidget->setVisible(false);  //player_status
+    ui ->gridLayoutWidget_2->setVisible(true); //level
+    //ui ->player_status->setEnabled(false);
     //static_cast<Enemy *>(enemy) -> setHPvisible(false);
 
     setLevelMode();
@@ -355,6 +360,9 @@ void MainWindow::toplayMode(){
     ui ->boss->setVisible(true);
     ui ->gameover->setVisible(true);
     ui ->graphicsView->setVisible(true);
+    ui ->gridLayoutWidget->setVisible(true);
+    ui ->gridLayoutWidget_2->setVisible(false);
+
 
     int i = 0;
     while(i < ui -> levelMode -> columnCount()*ui -> levelMode -> rowCount()){
