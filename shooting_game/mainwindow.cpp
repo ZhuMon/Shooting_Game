@@ -18,7 +18,8 @@ MainWindow::MainWindow(QWidget *parent) :
     //enemy(new Enemy(this)),
     enemy_move_cycle(0),
     bullet_move_cycle(0),
-    doubleShotState(0)
+    doubleShotState(0),
+    level(1)
     //levelmode(new QVBoxLayout(parent))
 {
     ui -> setupUi(this);
@@ -59,6 +60,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui -> mainToolBar -> addAction(levelAction);
     ui -> mainToolBar -> addAction(playAction);
+
+    ui -> doubleshot -> setStatusTip("Shot two bullets each time ");
+    ui -> heal -> setStatusTip("HP + 1");
+    ui -> rapidfire -> setStatusTip("Shot continuously");
+
     statusBar() ;
 
     ui -> pause -> setVisible(false);
@@ -90,6 +96,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui -> rapidfire_cd -> setValue(0);
     ui -> rapidfire -> setEnabled(false);
+
+    ui -> level -> setText("level " + QString::number(level));
+
 }
 
 MainWindow::~MainWindow()
@@ -190,7 +199,8 @@ void MainWindow::checkHP(){
         on_stop_clicked();
     }
     if(enemy -> getHp() <= 0){
-        ui -> gameover -> setText(" You Win");
+        ui -> gameover -> setText("You Win");
+        ui -> gameover -> setAlignment(Qt::AlignHCenter);
         on_stop_clicked();
     }
 
@@ -283,18 +293,26 @@ void MainWindow::enemy_shoot(){
     Bullet *b[12];
     int x[12] = {3, 4, 5, 4, 3, 0, -3, -4, -5, -4, -3, 0};
     int y[12] = {-4, -3, 0, 3, 4, 5, 4, 3, 0, -3, -4, -5};
-    for(int i = 0; i < 12; i++){
-        b[i] = new Bullet(QPixmap(":/images/bullet2").scaled(25, 25), 1, 1);
-        //b[i] -> MysetPos(enemy, 6);
-        b[i] -> setPos(enemy -> x() + enemy -> getW()/2, enemy -> y() + enemy -> getH()/2);
-        b[i] -> pX = x[i];
-        b[i] -> pY = y[i];
-        //b[i] -> connect(timerRF, SIGNAL(timeout()), b[i], SLOT(fly()));
-        b[i] -> connect(this, SIGNAL(bullet_track(int, int)), b[i], SLOT(fly(int,int)));
-        connect(b[i], SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
-        scene->addItem(static_cast<QGraphicsPixmapItem*>(b[i]));
-    }
+    if(level == 1){
+        b[0] = new Bullet(QPixmap(":/images/bullet2").scaled(25, 25), 1);
+        b[0] -> MysetPos(enemy, 6);
+        b[0] -> connect(this, SIGNAL(bullet_track(int, int)), b[0], SLOT(fly(int,int)));
+        connect(b[0], SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+        scene->addItem(static_cast<QGraphicsPixmapItem*>(b[0]));
 
+    } else if(level == 3){
+        for(int i = 0; i < 12; i++){
+            b[i] = new Bullet(QPixmap(":/images/bullet2").scaled(25, 25), 1);
+            //b[i] -> MysetPos(enemy, 6);
+            b[i] -> setPos(enemy -> x() + enemy -> getW()/2, enemy -> y() + enemy -> getH()/2);
+            b[i] -> pX = x[i];
+            b[i] -> pY = y[i];
+            //b[i] -> connect(timerRF, SIGNAL(timeout()), b[i], SLOT(fly()));
+            b[i] -> connect(this, SIGNAL(bullet_track(int, int)), b[i], SLOT(fly(int,int)));
+            connect(b[i], SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+            scene->addItem(static_cast<QGraphicsPixmapItem*>(b[i]));
+        }
+    }
 }
 
 void MainWindow::on_stop_clicked()
@@ -411,27 +429,36 @@ void MainWindow::toplayMode(){
 }
 
 void MainWindow::setLevelMode(){
-    QPushButton *level[9];
+    LevelButton *level[9];
 
     for(int i = 0; i < 9; i++){
-        level[i] = new QPushButton(QString::number(i+1), this);
+        level[i] = new LevelButton(i+1, this);
         //level[i] -> setGeometry(100+20*(i%3), 40 + 20*(i/3), 10, 10);
-        level[i] -> setFixedHeight(100);
-        level[i] -> setFixedWidth(100);
         //QLayoutItem *li = new QLayoutItem();
 
         ui -> levelMode -> addWidget(level[i], i/3, i%3);
                 //addWidget(level[i]);
+        connect(level[i], SIGNAL(pressed()), level[i], SLOT(MyClicked()));
+        connect(level[i], SIGNAL(MyClick(int)), this, SLOT(level_choose(int)));
     }
 
-    QRect rect;
-    rect.setHeight(100);
-    rect.setWidth(100);
-    rect.setX(0);
-    rect.setY(0);
-    //levelmode->setGeometry(rect);
+}
 
-
+void MainWindow::level_choose(int level){
+    this -> level = level;
+    switch(level){
+    case 1:
+        enemy->setImage(QPixmap(":/images/boss"), 150);
+        break;
+    case 2:
+        enemy->setImage(QPixmap(":/images/boss2"), 150);
+        break;
+    case 3:
+        enemy->setImage(QPixmap(":/images/boss3"), 150);
+        break;
+    }
+    toplayMode();
+    ui -> level -> setText("level " + QString::number(level));
 }
 
 void MainWindow::check_skill_cd(){
@@ -483,6 +510,7 @@ void MainWindow::on_doubleshot_clicked()
     doubleShotState = 1;
     ui -> doubleshot_cd -> setValue(0);
     ui -> doubleshot -> setEnabled(false);
+
 }
 
 void MainWindow::on_heal_clicked()
@@ -490,6 +518,7 @@ void MainWindow::on_heal_clicked()
     player -> recover(1);
     ui -> heal -> setEnabled(false);
     ui -> heal_cd -> setValue(0);
+
 }
 
 void MainWindow::player_shoot()

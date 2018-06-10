@@ -1,27 +1,25 @@
 #include "bullet.h"
 
-Bullet::Bullet(int who, int speed, int dx, int dy){
+Bullet::Bullet(int who, int dx, int dy){
     PorE = who;
-    s = speed;
     pX = dx;
     pY = dy;
 }
 
-Bullet::Bullet(QPixmap Qp, int who, int speed, int dx, int dy):
+Bullet::Bullet(QPixmap Qp, int who, int dx, int dy):
     PorE(who),
-    s(speed),
     pX(dx), pY(dy){
     this -> MysetPixmap(Qp);
 }
 
 void Bullet::fly(int mX, int mY){
     if(PorE == 0)
-        this -> setPos(x(), y() - s);
+        this -> setPos(x(), y() - 3);
     else if(PorE == 1)
         if(mX != 0 || mY != 0)
             this -> setPos(x() + mX, y() + mY);
         else
-            this -> setPos(x() + pX, y() + s + pY);
+            this -> setPos(x() + pX, y() + pY);
     if(y() < 20 || y() > 620 || x() < 40 || x() > 440) {
 
         //scene() -> addItem(this);

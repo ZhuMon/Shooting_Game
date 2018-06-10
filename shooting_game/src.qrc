@@ -5,6 +5,8 @@
 		<file alias="bullet1">bullet1.png</file>
 		<file alias="playerHP">heart.png</file>
 		<file alias="boss">boss_1.png</file>
+		<file alias="boss2">boss_2.png</file>
+		<file alias="boss3">boss_3.png</file>
 		<file alias="bossgif">boss.gif</file>
 		<file alias="bullet2">bullet2.png</file>
 		<file alias="bat">bat_enemy1.gif</file>

@@ -11,6 +11,7 @@
 #include "bullet.h"
 #include "player.h"
 #include "enemy.h"
+#include "levelbutton.h"
 
 namespace Ui {
 class MainWindow;
@@ -56,6 +57,8 @@ private slots:
 
     void on_rapidfire_clicked();
 
+    void level_choose(int level);
+
 signals:
     void bullet_track(int x, int y);
 
@@ -85,6 +88,8 @@ private:
     bool stopState;
     int doubleShotState; //0:one shot  1~5:two shot
     int rapidFireState;  //0:no 1~3:rapid
+
+    int level;
 };
 
 #endif // MAINWINDOW_H

@@ -29,14 +29,16 @@ SOURCES += \
     bullet.cpp \
     player.cpp \
     enemy.cpp \
-    character.cpp
+    character.cpp \
+    levelbutton.cpp
 
 HEADERS += \
         mainwindow.h \
     bullet.h \
     player.h \
     enemy.h \
-    character.h
+    character.h \
+    levelbutton.h
 
 FORMS += \
         mainwindow.ui

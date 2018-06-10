@@ -10,8 +10,8 @@ class Bullet: public QObject, public QGraphicsPixmapItem
     Q_OBJECT
 
 public:
-    Bullet(int who = 0, int s = 3, int dx = 0, int dy = 0);
-    Bullet(QPixmap Qp, int who = 0, int s = 3, int dx = 0, int dy = 0);
+    Bullet(int who = 0, int dx = 0, int dy = 10);
+    Bullet(QPixmap Qp, int who = 0, int dx = 0, int dy = 10);
     void MysetPixmap(const QPixmap &pixmap);
     void MysetPos(Character *p, int posOfClock = 6);
     int whoShot();
