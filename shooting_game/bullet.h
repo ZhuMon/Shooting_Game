@@ -19,7 +19,7 @@ public:
     int pX, pY; //when begin where bullet go
 
 public slots:
-    /*virtual*/void fly(int mX = 0, int mY = 0); //move (x,y)
+    /*virtual*/void fly(int mX = 0, int mY = 0, bool overplus = false); //move (x,y)
 
 signals:
     void bulletFly(Bullet *b);

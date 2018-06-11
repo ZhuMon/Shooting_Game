@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
     enemy_move_cycle(0),
     bullet_move_cycle(0),
     doubleShotState(0),
-    level(1)
+    level(1), passlevel(3)
     //levelmode(new QVBoxLayout(parent))
 {
     ui -> setupUi(this);
@@ -38,15 +38,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui -> hp4 -> setPixmap(QPixmap(":/images/playerHP").scaled(30,30));
     ui -> hp5 -> setPixmap(QPixmap(":/images/playerHP").scaled(30,30));
 
-    connect(timerRF, SIGNAL(timeout()), this, SLOT(checkHP()));
-    //QLabel label;
+
     QMovie *movie = new QMovie(":/images/bat");
-    //label.setMovie(movie);
     movie ->setScaledSize(QSize(200,160));
-
-    ui -> boss -> setMovie(movie);
-
-    movie -> start();
+    //movie -> start();
+    //ui -> boss -> setMovie(movie);
     ui -> boss ->setGeometry(150,200, 200, 80);
 
     levelAction = new QAction(tr("&Level..."), this);
@@ -97,7 +93,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui -> rapidfire_cd -> setValue(0);
     ui -> rapidfire -> setEnabled(false);
 
-    ui -> level -> setText("level " + QString::number(level));
+    ui -> gameover -> setAlignment(Qt::AlignHCenter);
+
+    ui -> level -> setText("Level " + QString::number(level));
+
 
 }
 
@@ -109,6 +108,7 @@ MainWindow::~MainWindow()
 void MainWindow::keyPressEvent(QKeyEvent *e)
 {
     //border:x:40-440 y:20-620
+
     if(stopState == false){
         switch(e -> key()) {
         case Qt::Key_Up:
@@ -200,9 +200,17 @@ void MainWindow::checkHP(){
     }
     if(enemy -> getHp() <= 0){
         ui -> gameover -> setText("You Win");
-        ui -> gameover -> setAlignment(Qt::AlignHCenter);
+
+        if(level > passlevel){
+            passlevel++;
+        }
         on_stop_clicked();
-    }
+        /*QPushButton *nextlevel = new QPushButton("next level", this);
+        nextlevel -> setFixedWidth(100);
+        ui -> levelMode -> addWidget(nextlevel);
+        connect(nextlevel, &QPushButton::pressed, this, &MainWindow::tolevelMode);
+*/
+       }
 
 }
 
@@ -244,6 +252,7 @@ void MainWindow::on_start_clicked()
     connect(timerRF, SIGNAL(timeout()), this, SLOT(enemy_move()));
     connect(timerRF, SIGNAL(timeout()), this, SLOT(bullet_track_control()));
     connect(timerES, SIGNAL(timeout()), this, SLOT(check_skill_cd()));
+    connect(timerRF, SIGNAL(timeout()), this, SLOT(checkHP()));
 
     stopState = false;
 
@@ -273,6 +282,7 @@ void MainWindow::on_pause_clicked()
         disconnect(timerRF, SIGNAL(timeout()), this, SLOT(enemy_move()));
         disconnect(timerRF, SIGNAL(timeout()), this, SLOT(bullet_track_control()));
         disconnect(timerES, SIGNAL(timeout()), this, SLOT(check_skill_cd()));
+        disconnect(timerRF, SIGNAL(timeout()), this, SLOT(checkHP()));
 
         ui -> pause -> setText("resume");
         stopState = true;
@@ -283,6 +293,7 @@ void MainWindow::on_pause_clicked()
         connect(timerRF, SIGNAL(timeout()), this, SLOT(enemy_move()));
         connect(timerRF, SIGNAL(timeout()), this, SLOT(bullet_track_control()));
         connect(timerES, SIGNAL(timeout()), this, SLOT(check_skill_cd()));
+        connect(timerRF, SIGNAL(timeout()), this, SLOT(checkHP()));
 
         ui -> pause -> setText("pause");
         stopState = false;
@@ -300,6 +311,15 @@ void MainWindow::enemy_shoot(){
         connect(b[0], SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
         scene->addItem(static_cast<QGraphicsPixmapItem*>(b[0]));
 
+    } else if(level == 2){
+        for(int i = 0; i < 2; i++){
+            b[i] = new Bullet(QPixmap(":/images/bullet2").scaled(25, 25), 1);
+            b[i] -> MysetPos(enemy, 3+6*i);
+            b[i] -> connect(this, SIGNAL(bullet_track(int, int)), b[i], SLOT(fly(int,int)));
+            connect(b[i], SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+            scene->addItem(static_cast<QGraphicsPixmapItem*>(b[i]));
+        }
+
     } else if(level == 3){
         for(int i = 0; i < 12; i++){
             b[i] = new Bullet(QPixmap(":/images/bullet2").scaled(25, 25), 1);
@@ -312,6 +332,27 @@ void MainWindow::enemy_shoot(){
             connect(b[i], SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
             scene->addItem(static_cast<QGraphicsPixmapItem*>(b[i]));
         }
+    } else if(level == 4){
+        for(int i = 0; i < 2; i++){
+            b[i] = new Bullet(QPixmap(":/images/bullet2").scaled(25, 25), 1);
+            b[i] -> MysetPos(enemy, 3+6*i);
+            b[i] -> pX = x[7-4*i];
+            b[i] -> pY = y[7-4*i];
+            b[i] -> connect(this, SIGNAL(bullet_track(int, int, bool)), b[i], SLOT(fly(int,int, bool)));
+            connect(b[i], SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+            scene->addItem(static_cast<QGraphicsPixmapItem*>(b[i]));
+        }
+
+    } else if(level == 5){
+
+    } else if(level == 6){
+
+    } else if(level == 7){
+
+    } else if(level == 8){
+
+    } else if(level == 9){
+
     }
 }
 
@@ -323,6 +364,7 @@ void MainWindow::on_stop_clicked()
     disconnect(timerRF, SIGNAL(timeout()), this, SLOT(enemy_move()));
     disconnect(timerRF, SIGNAL(timeout()), this, SLOT(bullet_track_control()));
     disconnect(timerES, SIGNAL(timeout()), this, SLOT(check_skill_cd()));
+    disconnect(timerRF, SIGNAL(timeout()), this, SLOT(checkHP()));
     stopState = true;
     //QList list(scene -> items());
     //list = scene -> items();
@@ -345,61 +387,73 @@ void MainWindow::on_stop_clicked()
 
 void MainWindow::enemy_move(){
     enemy_move_cycle++;
-    if(enemy_move_cycle == 100 ){ //10s or stop
-        enemy_move_cycle = 0;
-        return;
-    } else if(enemy_move_cycle < 25) { //2.5s
-        enemy->myMove(5,0);
-        //enemy->setPos(enemy->x() + 5, enemy-> y());
-        ui -> boss ->setGeometry(ui -> boss -> x() + 10, ui -> boss -> y(), ui -> boss ->width(), ui -> boss -> height());
-    } else if(enemy_move_cycle < 75) {
-        enemy->myMove(-5,0);
-        //enemy->setPos(enemy->x() - 5, enemy->y());
-        ui -> boss ->setGeometry(ui -> boss -> x() - 10, ui -> boss -> y(), ui -> boss ->width(), ui -> boss -> height());
-    } else if(enemy_move_cycle < 100) {
-        enemy->myMove(5,0);
-        //enemy->setPos(enemy->x() + 5, enemy->y());
-        ui -> boss ->setGeometry(ui -> boss -> x() + 10, ui -> boss -> y(), ui -> boss ->width(), ui -> boss -> height());
+    if(level != 4){
+        if(enemy_move_cycle == 100 ){ //10s or stop
+            enemy_move_cycle = 0;
+            return;
+        } else if(enemy_move_cycle < 25) { //2.5s
+            enemy->myMove(5,0);
+            //enemy->setPos(enemy->x() + 5, enemy-> y());
+            ui -> boss ->setGeometry(ui -> boss -> x() + 10, ui -> boss -> y(), ui -> boss ->width(), ui -> boss -> height());
+        } else if(enemy_move_cycle < 75) {
+            enemy->myMove(-5,0);
+            //enemy->setPos(enemy->x() - 5, enemy->y());
+            ui -> boss ->setGeometry(ui -> boss -> x() - 10, ui -> boss -> y(), ui -> boss ->width(), ui -> boss -> height());
+        } else if(enemy_move_cycle < 100) {
+            enemy->myMove(5,0);
+            //enemy->setPos(enemy->x() + 5, enemy->y());
+            ui -> boss ->setGeometry(ui -> boss -> x() + 10, ui -> boss -> y(), ui -> boss ->width(), ui -> boss -> height());
+        }
+
     }
-
-
 }
 
 void MainWindow::bullet_track_control(){
     bullet_move_cycle++;
     //int back;
     //back = bullet_move_cycle-100;
-    emit bullet_track(0,0);
-    /*if(bullet_move_cycle < 50){
-        //back = 360 - bullet_move_cycle;
-        //double x;//, y;
-        //x = qDegreesToRadians((double)bullet_move_cycle);
-        //y = qDegreesToRadians((double)bullet_move_cycle);
-        emit bullet_track(0,5);
-    } else if(bullet_move_cycle < 70){
-        //double x;//, y;
-        //x = qDegreesToRadians((double)back);
-        //y = qDegreesToRadians((double)bullet_move_cycle);
-        //emit bullet_track(qCos(x)*10,qSin(x)*10);
-        emit bullet_track(0, 0);
-    } else if(bullet_move_cycle < 100){
-        emit bullet_track(0,5);
-    } else if(bullet_move_cycle < 120){
+
+    //if(level == 4){
+    //    double x;
+     //   x = qDegreesToRadians((double)bullet_move_cycle);
+        //emit bullet_track(qCos(x)*10,qSin(x)*10, true);
+        /*if(bullet_move_cycle < 50){
+            //back = 360 - bullet_move_cycle;
+            //double x;//, y;
+            //x = qDegreesToRadians((double)bullet_move_cycle);
+            //y = qDegreesToRadians((double)bullet_move_cycle);
+            emit bullet_track(0,5);
+        } else if(bullet_move_cycle < 70){
+            //double x;//, y;
+            //x = qDegreesToRadians((double)back);
+            //y = qDegreesToRadians((double)bullet_move_cycle);
+            //emit bullet_track(qCos(x)*10,qSin(x)*10);
+            emit bullet_track(0, 0);
+        } else if(bullet_move_cycle < 100){
+            emit bullet_track(0,5);
+        } else if(bullet_move_cycle < 120){
+            emit bullet_track(0,0);
+        } else if(bullet_move_cycle < 200){
+            emit bullet_track(0,5);
+        } else if(bullet_move_cycle < 220){
+            emit bullet_track(0,0);
+        } else if(bullet_move_cycle < 360){
+            emit bullet_track(0,5);
+        } else if(bullet_move_cycle == 360){
+            bullet_move_cycle = 0;
+        }*/
+    //} else {
         emit bullet_track(0,0);
-    } else if(bullet_move_cycle < 200){
-        emit bullet_track(0,5);
-    } else if(bullet_move_cycle < 220){
-        emit bullet_track(0,0);
-    } else if(bullet_move_cycle < 360){
-        emit bullet_track(0,5);
-    } else if(bullet_move_cycle == 360){
-        bullet_move_cycle = 0;
-    }*/
+    //}
 }
 
 void MainWindow::tolevelMode(){
-    //levelmode -> setVisible(true);
-    //ui ->player_status -> setVisible(false);
+    int i = 0;
+    /*while(i < ui -> levelMode -> columnCount()*ui -> levelMode -> rowCount()){
+        QWidget* widget = ui -> levelMode -> itemAt(i++) -> widget();
+        widget->deleteLater();
+    }*/
+
     ui ->boss->setVisible(false);
     ui ->gameover->setVisible(false);
     ui ->graphicsView->setVisible(false);
@@ -420,6 +474,7 @@ void MainWindow::toplayMode(){
     ui ->gridLayoutWidget->setVisible(true);
     ui ->gridLayoutWidget_2->setVisible(false);
 
+    ui -> gameover -> setText("");
 
     int i = 0;
     while(i < ui -> levelMode -> columnCount()*ui -> levelMode -> rowCount()){
@@ -430,16 +485,21 @@ void MainWindow::toplayMode(){
 
 void MainWindow::setLevelMode(){
     LevelButton *level[9];
+    QFont f;
+    f.setPointSize(50);
 
     for(int i = 0; i < 9; i++){
         level[i] = new LevelButton(i+1, this);
         //level[i] -> setGeometry(100+20*(i%3), 40 + 20*(i/3), 10, 10);
         //QLayoutItem *li = new QLayoutItem();
-
+        level[i] -> setFont(f);
         ui -> levelMode -> addWidget(level[i], i/3, i%3);
                 //addWidget(level[i]);
         connect(level[i], SIGNAL(pressed()), level[i], SLOT(MyClicked()));
         connect(level[i], SIGNAL(MyClick(int)), this, SLOT(level_choose(int)));
+        if(i > passlevel){
+            level[i] -> setEnabled(false);
+        }
     }
 
 }
@@ -458,7 +518,7 @@ void MainWindow::level_choose(int level){
         break;
     }
     toplayMode();
-    ui -> level -> setText("level " + QString::number(level));
+    ui -> level -> setText("Level " + QString::number(level));
 }
 
 void MainWindow::check_skill_cd(){

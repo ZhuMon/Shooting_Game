@@ -60,7 +60,7 @@ private slots:
     void level_choose(int level);
 
 signals:
-    void bullet_track(int x, int y);
+    void bullet_track(int x, int y, bool overPlus = false);
 
 
 private:
@@ -90,6 +90,7 @@ private:
     int rapidFireState;  //0:no 1~3:rapid
 
     int level;
+    int passlevel;
 };
 
 #endif // MAINWINDOW_H

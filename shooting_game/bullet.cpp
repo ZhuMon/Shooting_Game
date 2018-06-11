@@ -12,11 +12,13 @@ Bullet::Bullet(QPixmap Qp, int who, int dx, int dy):
     this -> MysetPixmap(Qp);
 }
 
-void Bullet::fly(int mX, int mY){
+void Bullet::fly(int mX, int mY, bool overplus){
     if(PorE == 0)
         this -> setPos(x(), y() - 3);
     else if(PorE == 1)
-        if(mX != 0 || mY != 0)
+        if(overplus){
+            setPos(x() + mX + pX, y() + mY + pY);
+        }else if(mX != 0 || mY != 0)
             this -> setPos(x() + mX, y() + mY);
         else
             this -> setPos(x() + pX, y() + pY);
