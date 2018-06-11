@@ -3,6 +3,7 @@
 
 #include "character.h"
 #include <QProgressBar>
+#include <QLabel>
 
 class Enemy: public Character//, public QLabel
 {
@@ -17,10 +18,12 @@ public:
     virtual void recover(int point);
     void setHPvisible(bool visible);
     virtual void initial();
+    void setGif(QMovie *movie);
 
 private:
     QProgressBar *HPpercent;
     QWidget *w;
+    QLabel *label;
     //int HP;
     //int height, width;
 };

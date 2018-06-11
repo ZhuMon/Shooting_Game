@@ -2,11 +2,12 @@
 #include <QMovie>
 #include <QPixmap>
 #include <QProgressBar>
+#include <QLabel>
 
 
 Enemy::Enemy(QWidget *parent)
 {
-
+    w = parent;
     setImage(QPixmap(":/images/boss"), 150);
     //setMovie(QMovie(":/images/bossgif"));
     setPos(150, 50);
@@ -23,6 +24,8 @@ Enemy::Enemy(QWidget *parent)
     HPpercent -> setPalette(pal);
 
     initHP = HP = 100;
+
+    label = new QLabel(w);
 
 }
 
@@ -58,4 +61,17 @@ void Enemy::initial(){
     HP = initHP;
     HPpercent -> setGeometry(150,70, 150, 10);
     HPpercent -> setValue(100);
+}
+
+void Enemy::setGif(QMovie *movie){
+
+
+
+    //QMovie *movie1 = new QMovie(":/images/bat");
+    movie -> setParent(label);
+    movie -> setScaledSize(QSize(width,height));
+    movie -> start();
+    label -> setMovie(movie);
+
+    label ->setGeometry(X0, Y0, width, height);
 }

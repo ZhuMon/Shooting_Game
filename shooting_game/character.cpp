@@ -38,3 +38,4 @@ void Character::initial(){
     setPos(X0, Y0);
     HP = initHP;
 }
+

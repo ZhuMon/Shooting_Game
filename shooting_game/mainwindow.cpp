@@ -19,7 +19,9 @@ MainWindow::MainWindow(QWidget *parent) :
     enemy_move_cycle(0),
     bullet_move_cycle(0),
     doubleShotState(0),
-    level(1), passlevel(3)
+    level(1),
+    passlevel(4),
+    stopState(true)
     //levelmode(new QVBoxLayout(parent))
 {
     ui -> setupUi(this);
@@ -27,6 +29,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     enemy = new Enemy(this); // so the HP can flow on scene
     static_cast<Enemy *>(enemy) -> setHPvisible(false);
+
+
 
     timer -> start(10);
     timerRF -> start(100);
@@ -39,11 +43,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui -> hp5 -> setPixmap(QPixmap(":/images/playerHP").scaled(30,30));
 
 
-    QMovie *movie = new QMovie(":/images/bat");
-    movie ->setScaledSize(QSize(200,160));
-    //movie -> start();
-    //ui -> boss -> setMovie(movie);
-    ui -> boss ->setGeometry(150,200, 200, 80);
+
 
     levelAction = new QAction(tr("&Level..."), this);
     playAction = new QAction(tr("&Play..."), this);
@@ -271,6 +271,11 @@ void MainWindow::on_start_clicked()
     ui -> rapidfire_cd -> setValue(0);
     ui -> rapidfire -> setEnabled(false);
 
+    if(level == 5){
+        QMovie *movie = new QMovie(":/images/bat");
+        static_cast<Enemy *>(enemy) -> setGif(movie);
+    }
+
 }
 
 void MainWindow::on_pause_clicked()
@@ -323,8 +328,8 @@ void MainWindow::enemy_shoot(){
     } else if(level == 3){
         for(int i = 0; i < 12; i++){
             b[i] = new Bullet(QPixmap(":/images/bullet2").scaled(25, 25), 1);
-            //b[i] -> MysetPos(enemy, 6);
-            b[i] -> setPos(enemy -> x() + enemy -> getW()/2, enemy -> y() + enemy -> getH()/2);
+            b[i] -> MysetPos(enemy, 6);
+            //b[i] -> setPos(enemy -> x() + enemy -> getW()/2, enemy -> y() + enemy -> getH()/2);
             b[i] -> pX = x[i];
             b[i] -> pY = y[i];
             //b[i] -> connect(timerRF, SIGNAL(timeout()), b[i], SLOT(fly()));
@@ -335,9 +340,9 @@ void MainWindow::enemy_shoot(){
     } else if(level == 4){
         for(int i = 0; i < 2; i++){
             b[i] = new Bullet(QPixmap(":/images/bullet2").scaled(25, 25), 1);
-            b[i] -> MysetPos(enemy, 3+6*i);
-            b[i] -> pX = x[7-4*i];
-            b[i] -> pY = y[7-4*i];
+            b[i] -> MysetPos(enemy, 5+2*i);
+            //b[i] -> pX = x[i];
+            //b[i] -> pY = y[i];
             b[i] -> connect(this, SIGNAL(bullet_track(int, int, bool)), b[i], SLOT(fly(int,int, bool)));
             connect(b[i], SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
             scene->addItem(static_cast<QGraphicsPixmapItem*>(b[i]));
@@ -387,7 +392,7 @@ void MainWindow::on_stop_clicked()
 
 void MainWindow::enemy_move(){
     enemy_move_cycle++;
-    if(level != 4){
+    //if(level != 4){
         if(enemy_move_cycle == 100 ){ //10s or stop
             enemy_move_cycle = 0;
             return;
@@ -405,18 +410,21 @@ void MainWindow::enemy_move(){
             ui -> boss ->setGeometry(ui -> boss -> x() + 10, ui -> boss -> y(), ui -> boss ->width(), ui -> boss -> height());
         }
 
-    }
+    //}
 }
 
 void MainWindow::bullet_track_control(){
     bullet_move_cycle++;
     //int back;
     //back = bullet_move_cycle-100;
-
-    //if(level == 4){
-    //    double x;
-     //   x = qDegreesToRadians((double)bullet_move_cycle);
-        //emit bullet_track(qCos(x)*10,qSin(x)*10, true);
+    if(bullet_move_cycle == 360){
+        bullet_move_cycle = 0;
+    }
+    if(level == 4){
+        double x;
+        x = qDegreesToRadians((double)bullet_move_cycle);
+        emit bullet_track(qCos(x)*10,qSin(x)*5, true);
+        //emit bullet_track(0,0);
         /*if(bullet_move_cycle < 50){
             //back = 360 - bullet_move_cycle;
             //double x;//, y;
@@ -442,13 +450,13 @@ void MainWindow::bullet_track_control(){
         } else if(bullet_move_cycle == 360){
             bullet_move_cycle = 0;
         }*/
-    //} else {
+    } else {
         emit bullet_track(0,0);
-    //}
+    }
 }
 
 void MainWindow::tolevelMode(){
-    int i = 0;
+    //int i = 0;
     /*while(i < ui -> levelMode -> columnCount()*ui -> levelMode -> rowCount()){
         QWidget* widget = ui -> levelMode -> itemAt(i++) -> widget();
         widget->deleteLater();
@@ -481,6 +489,7 @@ void MainWindow::toplayMode(){
         QWidget* widget = ui -> levelMode -> itemAt(i++) -> widget();
         widget->deleteLater();
     }
+
 }
 
 void MainWindow::setLevelMode(){
@@ -515,6 +524,14 @@ void MainWindow::level_choose(int level){
         break;
     case 3:
         enemy->setImage(QPixmap(":/images/boss3"), 150);
+        break;
+    case 4:
+        enemy->setImage(QPixmap(":/images/boss"), 150);
+        break;
+    case 5:
+        //enemy->setImage(QPixmap(":/images/boss3"), 150);
+        enemy->setPixmap(QPixmap());
+
         break;
     }
     toplayMode();

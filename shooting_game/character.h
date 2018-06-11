@@ -17,6 +17,7 @@ public:
     virtual void myMove(int x, int y) = 0;
     virtual void initial();//initial position, hp
 
+
 protected:
     int HP;
     int height, width;
