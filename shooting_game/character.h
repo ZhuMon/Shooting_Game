@@ -16,13 +16,14 @@ public:
     void setImage(const QPixmap &Qp, float w);//set width to w
     virtual void myMove(int x, int y) = 0;
     virtual void initial();//initial position, hp
-
+    QGraphicsPixmapItem *skill;
 
 protected:
     int HP;
     int height, width;
     int X0, Y0; //initial position
     int initHP; //initial HP
+
 };
 
 #endif // CHARACTER_H

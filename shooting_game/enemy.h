@@ -18,11 +18,14 @@ public:
     virtual void recover(int point);
     void setHPvisible(bool visible);
     virtual void initial();
-    void setGif(QMovie *movie);
+    void initial(int x, int y, int w, int HP, const QPixmap& qp);
+    void setGif(QMovie *movie, int w , int h);
+    void setGifvisible(bool visible);
+
 
 private:
     QProgressBar *HPpercent;
-    QWidget *w;
+    QWidget *parent;
     QLabel *label;
     //int HP;
     //int height, width;

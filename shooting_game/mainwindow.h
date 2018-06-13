@@ -7,6 +7,7 @@
 #include <QKeyEvent>
 #include <QTimer>
 #include <QVBoxLayout>
+#include <QVector>
 
 #include "bullet.h"
 #include "player.h"
@@ -59,6 +60,16 @@ private slots:
 
     void level_choose(int level);
 
+    void tolevelMode();
+
+    void toplayMode();
+
+    void on_smoothAll_clicked();
+
+    void circle_wave_emit();
+
+    void on_supertime_clicked();
+
 signals:
     void bullet_track(int x, int y, bool overPlus = false);
 
@@ -69,6 +80,8 @@ private:
 
     Character *player;
     Character *enemy;
+
+    QVector<Character*> small_enemy;
     QTimer *timer;   //every timeout up
     QTimer *timerRF; //every timeout shoot one//Rapid Fire
     QTimer *timerES; //every timeout shoot one//Enemy Shoot
@@ -78,8 +91,7 @@ private:
 
     QAction *levelAction;
     QAction *playAction;
-    void tolevelMode();
-    void toplayMode();
+
 
     int enemy_move_cycle;
     int bullet_move_cycle;
@@ -91,6 +103,9 @@ private:
 
     int level;
     int passlevel;
+
+    int smoothTimes;
+    bool superState;
 };
 
 #endif // MAINWINDOW_H

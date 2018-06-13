@@ -22,16 +22,22 @@ void Character::recover(int point){
 
 void Character::setImage(const QPixmap &Qp, float w){
 
-    width = Qp.width();
-    height = Qp.height();
+    if(Qp.isNull() == false){
+        width = Qp.width();
+        height = Qp.height();
 
-    setScale(w/width); //50*?
-    setPixmap(Qp);
+        setScale(w/width); //w*?
+        height = height * (w/width);
+        width = w;
+        setPixmap(Qp);
+    } else { //is gif
+        //QPixmap qq = Qp;
+        //qq.scaled(width, height);
+        setPixmap(Qp);
+    }
 
 
 
-    height = height * (w/width);
-    width = w;
 }
 
 void Character::initial(){
