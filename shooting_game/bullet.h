@@ -5,6 +5,7 @@
 #include <QGraphicsScene>
 #include "character.h"
 
+
 class Bullet: public QObject, public QGraphicsPixmapItem
 {
     Q_OBJECT
@@ -17,6 +18,7 @@ public:
     int whoShot();
     int getSpeed();
     int pX, pY; //when begin where bullet go
+    bool flyORresize;
 
 public slots:
     /*virtual*/void fly(int mX = 0, int mY = 0, bool overplus = false); //move (x,y)

@@ -21,12 +21,12 @@ public:
     void initial(int x, int y, int w, int HP, const QPixmap& qp);
     void setGif(QMovie *movie, int w , int h);
     void setGifvisible(bool visible);
-
+    QLabel *label;
 
 private:
     QProgressBar *HPpercent;
     QWidget *parent;
-    QLabel *label;
+
     //int HP;
     //int height, width;
 };

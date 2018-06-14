@@ -2,9 +2,13 @@
 <RCC>
 	<qresource prefix="/images">
         	<file alias="player">plane.png</file>
+		<file alias="player2">plane2.png</file>
+
 		<file alias="bullet1">bullet1.png</file>
 		<file alias="bullet2">bullet2.png</file>
 		<file alias="bullet3">bullet3.png</file>
+		<file alias="bullet4">fire.png</file>
+		<file alias="ash">ash.png</file>
 
 		<file alias="playerHP">heart.png</file>
 		<file alias="empty">empty_heart.png</file>
@@ -13,11 +17,15 @@
 		<file alias="boss2">boss_2.png</file>
 		<file alias="boss3">boss_3.png</file>
 		<file alias="bossgif">boss.gif</file>
+		<file alias="bossgif_simple">boss.png</file>
 		<file alias="bat">bat_enemy2.gif</file>
+		<file alias="bat_simple">bat_enemy2.png</file>
 
 		<file alias="doublebullet">doublebullet1.png</file>
 		<file alias="heal">heal.png</file>
+		<file alias="healgif">heal.gif</file>
 		<file alias="rapidfire">rapid_fire.png</file>
 		<file alias="smoothAll">circle_wave.png</file>
+		<file alias="smoothEmpty">empty_circle_wave.png</file>
     	</qresource>
 </RCC>

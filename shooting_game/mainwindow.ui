@@ -42,7 +42,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QLabel" name="boss">
+   <widget class="QLabel" name="playerSkill">
     <property name="geometry">
      <rect>
       <x>330</x>
@@ -82,7 +82,7 @@
       <height>441</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="player_status" stretch="0,0,0,0,0,0,0">
+    <layout class="QVBoxLayout" name="player_status" stretch="0,0,0,0,0,0,0,0">
      <property name="sizeConstraint">
       <enum>QLayout::SetNoConstraint</enum>
      </property>
@@ -108,6 +108,51 @@
       </widget>
      </item>
      <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>20</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>score</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="score">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>20</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
       <layout class="QHBoxLayout" name="playerHP">
        <property name="spacing">
         <number>0</number>
@@ -118,10 +163,15 @@
        <item>
         <widget class="QLabel" name="HP">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>20</pointsize>
+          </font>
          </property>
          <property name="text">
           <string>player</string>

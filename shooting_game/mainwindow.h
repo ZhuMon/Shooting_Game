@@ -8,6 +8,7 @@
 #include <QTimer>
 #include <QVBoxLayout>
 #include <QVector>
+#include <QLinkedList>
 
 #include "bullet.h"
 #include "player.h"
@@ -24,6 +25,7 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = 0);
+
     ~MainWindow();
 
 public slots:
@@ -70,6 +72,8 @@ private slots:
 
     void on_supertime_clicked();
 
+    void frameChanged_Handler(int frameNumber);
+
 signals:
     void bullet_track(int x, int y, bool overPlus = false);
 
@@ -82,6 +86,9 @@ private:
     Character *enemy;
 
     QVector<Character*> small_enemy;
+
+    QLinkedList<Bullet *> bl;
+
     QTimer *timer;   //every timeout up
     QTimer *timerRF; //every timeout shoot one//Rapid Fire
     QTimer *timerES; //every timeout shoot one//Enemy Shoot
@@ -106,6 +113,10 @@ private:
 
     int smoothTimes;
     bool superState;
+
+    QMovie *heal_gif;
+
+    int score;
 };
 
 #endif // MAINWINDOW_H
