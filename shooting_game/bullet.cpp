@@ -1,10 +1,15 @@
 #include "bullet.h"
+#include <QtMath>
 
 Bullet::Bullet(int who, int dx, int dy){
     PorE = who;
     pX = dx;
     pY = dy;
     flyORresize = true;
+    resizeORstay = true;
+    flower = false;
+    count = 0;
+    move = 0;
 }
 
 Bullet::Bullet(QPixmap Qp, int who, int dx, int dy):
@@ -12,35 +17,63 @@ Bullet::Bullet(QPixmap Qp, int who, int dx, int dy):
     pX(dx), pY(dy){
     this -> MysetPixmap(Qp);
     flyORresize = true;
+    resizeORstay = true;
+    flower = false;
+    count = 0;
+    move = 0;
 }
 
 void Bullet::fly(int mX, int mY, bool overplus){
+    /*int initX, initY;
+    initX = x();
+    initY = y();*/
+
+    double mmX = (double)mX/10;
+    double mmY = (double)mY/10;
+    if(flower){
+        move += 1;
+        if(move < 50){
+            mmX *= (50-move)/50;
+            mmY *= (0-move)/50;
+        } else {
+            move = 0;
+        }
+    }
     if(flyORresize){ //fly
         if(PorE == 0){ //player shoot
             this -> setPos(x(), y() - 3);
         } else if(PorE == 1) {//enemy shoot
             if(overplus){
-                setPos(x() + mX + pX, y() + mY + pY);
-            }else if(mX != 0 || mY != 0){
-                this -> setPos(x() + mX, y() + mY);
+                setPos(x() + mmX + pX, y() + mmY + pY);
+            }else if(mmX != 0 || mmY != 0){
+                this -> setPos(x() + mmX, y() + mmY);
             }else{
                 this -> setPos(x() + pX, y() + pY);
             }
         }
 
         emit bulletFly(this);
-    } else { //resize   //mX = width, mY = height
+    } else if(resizeORstay){ //resize   //mX = width, mY = height
         mX += 5;
         mY += 5;
         setPos(x()-mX/2, y()-mY/2);
         //this->pixmap().scaled(pixmap().width()+mX, pixmap().height()+mY);
         //setScale(((qreal)pixmap().width()+mX)/pixmap().width());
         this -> MysetPixmap(QPixmap(":/images/bullet4").scaled(pixmap().width()+mX, pixmap().height()+mY));
-
-        if(pixmap().width() > 75){
+        count++;
+        if(count > 10){
+            flyORresize = true;
+        }
+    } else {
+        count++;
+        if(count > 10){
+            resizeORstay = true;
             flyORresize = true;
         }
     }
+
+    //move += pow(pow((x()-initX),2)+pow((y()-initY),2), 0.5);
+
 }
 
 

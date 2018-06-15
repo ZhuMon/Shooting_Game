@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
     bullet_move_cycle(0),
     doubleShotState(0),
     level(1),
-    passlevel(6),
+    passlevel(7),
     stopState(true),
     smoothTimes(0),
     heal_gif(new QMovie(":/images/healgif")),
@@ -292,9 +292,31 @@ void MainWindow::hit(Bullet *b){
         if(b ->collidesWithItem(player)){
             player -> damage(1);
             if(level == 7){
-                bl.append(new Bullet(QPixmap(":/images/ash").scaled(75,75)));
+                bl.append(new Bullet(QPixmap(":/images/ash").scaled(b->pixmap().width(),b->pixmap().height())));
                 bl.last() -> setPos(b->x(),b->y());
                 scene -> addItem(bl.last());
+
+                int x[12] = {3, 4, 5, 4, 3, 0, -3, -4, -5, -4, -3, 0};
+                int y[12] = {-4, -3, 0, 3, 4, 5, 4, 3, 0, -3, -4, -5};
+                if(b -> pixmap().height() -20 > 0){
+                    for(int i = 0; i < 12; i++){
+
+                        bl.append(new Bullet);
+
+                        bl.last() = new Bullet(QPixmap(":/images/bullet4").scaled(b->pixmap().width()-20,b->pixmap().height()-20), 1);
+                        bl.last() -> setPos(b-> x() + b->pixmap().width()/2-bl.last()->pixmap().width()/2, b-> y() + b -> pixmap().height()/2-bl.last()->pixmap().height()/2);
+                        bl.last() -> pX = x[i];
+                        bl.last() -> pY = y[i];
+                        bl.last() -> flyORresize = false;
+                        bl.last() -> resizeORstay = false;
+                        bl.last() -> connect(this, SIGNAL(bullet_track(int, int)), bl.last(), SLOT(fly(int,int)));
+                        connect(bl.last(), SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+                        scene->addItem(static_cast<QGraphicsPixmapItem*>(bl.last()));
+                        score+=5;
+                        ui -> score -> setText(QString::number(score));
+
+                    }
+                }
             }
             scene -> removeItem(b);
             bl.removeOne(b);
@@ -488,20 +510,32 @@ void MainWindow::enemy_shoot(){
         static int bulletEmit;
         bulletEmit++;
         if(bulletEmit == 2){
-            bl.append(new Bullet(QPixmap(":/images/bullet4").scaled(25, 25), 1));
+            bl.append(new Bullet(QPixmap(":/images/bullet4").scaled(50, 50), 1));
             //bl.last()-> setPos(enemy->x()+enemy->getW()/2-12, enemy->y()+enemy->getH()/2-12);
             bl.last() -> MysetPos(enemy,12);
+            bl.last() -> pY = qrand() % ((20 + 1) - 1) + 1;
             bl.last() -> flyORresize = false;
             bl.last() -> connect(this,SIGNAL(bullet_track(int,int,bool)), bl.last(), SLOT(fly(int,int,bool)));
             connect(bl.last(), SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
             scene->addItem(static_cast<QGraphicsPixmapItem*>(bl.last()));
 
             bulletEmit = 0;
-            score+=10;
+            score+=50;
             ui -> score -> setText(QString::number(score));
         }
 
     } else if(level == 8){
+        //1
+        bl.append(new Bullet(QPixmap(":/images/bullet4").scaled(50, 50), 1,5,5));
+        bl.last() -> MysetPos(enemy,6);
+        bl.last() -> flower = true;
+
+        bl.last() -> connect(this,SIGNAL(bullet_track(int,int,bool)), bl.last(), SLOT(fly(int,int,bool)));
+        connect(bl.last(), SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+        scene->addItem(static_cast<QGraphicsPixmapItem*>(bl.last()));
+
+        score+=50;
+        ui -> score -> setText(QString::number(score));
 
     } else if(level == 9){
 
@@ -568,7 +602,7 @@ void MainWindow::on_stop_clicked()
 
 void MainWindow::enemy_move(){
     enemy_move_cycle++;
-    //if(level != 4){
+    if(level != 8){
         if(enemy_move_cycle == 100 ){ //10s or stop
             enemy_move_cycle = 0;
             return;
@@ -580,7 +614,7 @@ void MainWindow::enemy_move(){
             enemy->myMove(5,0);
         }
 
-    //}
+    }
 }
 
 void MainWindow::bullet_track_control(){
@@ -619,10 +653,18 @@ void MainWindow::bullet_track_control(){
         } else if(bullet_move_cycle == 360){
             bullet_move_cycle = 0;
         }*/
-    } if(level == 7){
+    } else if(level == 7){
 
         emit bullet_track(0,0, false);
 
+    } else if(level == 8){
+        double x;
+
+        x = qDegreesToRadians((double)bullet_move_cycle);
+
+        //if(bullet_move_cycle<30){
+            emit bullet_track(qCos(x)*100,qSin(x)*100, false);
+        //}
     } else {
         emit bullet_track(0,0);
     }
@@ -698,27 +740,29 @@ void MainWindow::level_choose(int level){
 
     switch(level){
     case 1:
-        enemy->setImage(QPixmap(":/images/boss"), 150);
+        //enemy->setImage(QPixmap(":/images/boss"), 150);
+        static_cast<Enemy*>(enemy) -> initial(150,50,150,100,QPixmap(":/images/boss"));
         break;
     case 2:
-        enemy->setImage(QPixmap(":/images/boss2"), 150);
+        //enemy->setImage(QPixmap(":/images/boss2"), 150);
+        static_cast<Enemy*>(enemy) -> initial(150,50,150,100,QPixmap(":/images/boss2"));
         break;
     case 3:
-        enemy->setImage(QPixmap(":/images/boss3"), 150);
+        //enemy->setImage(QPixmap(":/images/boss3"), 150);
+        static_cast<Enemy*>(enemy) -> initial(150,50,150,100,QPixmap(":/images/boss3"));
         break;
     case 4:
-        enemy->setImage(QPixmap(":/images/boss"), 150);
+        //enemy->setImage(QPixmap(":/images/boss"), 150);
+        static_cast<Enemy*>(enemy) -> initial(150,50,150,100,QPixmap(":/images/boss"));
         break;
     case 5:
         //enemy->setImage(QPixmap(":/images/boss3"), 150);
         static_cast<Enemy*>(enemy) -> setGif(movie,150,195/2.5);
-        enemy->setImage(QPixmap(":/images/bat_simple"),150);
-
+        static_cast<Enemy*>(enemy) -> initial(150,50,150,100,QPixmap(":/images/bat_simple"));
         static_cast<Enemy*>(enemy) -> setGifvisible(false);
         break;
     case 6:
-
-        enemy->setImage(QPixmap(":/images/boss"), 150);
+        static_cast<Enemy*>(enemy) -> initial(150,50,150,100,QPixmap(":/images/boss"));
         if(small_enemy.size() < 1)
             small_enemy.append(new Enemy(this));
         if(small_enemy.size() < 2)
@@ -733,8 +777,11 @@ void MainWindow::level_choose(int level){
         movie->setFileName(":/images/bossgif");
         static_cast<Enemy*>(enemy) -> setGif(movie,150,150);
         enemy->setImage(QPixmap(),150);
-        static_cast<Enemy*>(enemy) -> initial(150,60,150,150,QPixmap(":/images/bossgif_simple"));
-
+        static_cast<Enemy*>(enemy) -> initial(150,100,150,100,QPixmap(":/images/bossgif_simple"));
+        break;
+    case 8:
+        static_cast<Enemy*>(enemy) -> initial(150,50,150,100,QPixmap(":/images/boss3"));
+        break;
 
     }
     toplayMode();

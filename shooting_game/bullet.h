@@ -6,6 +6,7 @@
 #include "character.h"
 
 
+
 class Bullet: public QObject, public QGraphicsPixmapItem
 {
     Q_OBJECT
@@ -19,6 +20,8 @@ public:
     int getSpeed();
     int pX, pY; //when begin where bullet go
     bool flyORresize;
+    bool resizeORstay;
+    bool flower;
 
 public slots:
     /*virtual*/void fly(int mX = 0, int mY = 0, bool overplus = false); //move (x,y)
@@ -30,6 +33,8 @@ signals:
 private:
     int PorE; //0:player 1:enemy
     int s; //speed of bullet
+    int count; //count time
+    float move; //how long bullet trace
 };
 
 #endif // BULLET_H
