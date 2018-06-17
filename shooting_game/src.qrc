@@ -8,6 +8,8 @@
 		<file alias="bullet2">bullet2.png</file>
 		<file alias="bullet3">bullet3.png</file>
 		<file alias="bullet4">fire.png</file>
+		<file alias="bullet5">diamond.png</file>
+		<file alias="bullet6">girl.png</file>
 		<file alias="ash">ash.png</file>
 
 		<file alias="playerHP">heart.png</file>
@@ -25,6 +27,7 @@
 		<file alias="heal">heal.png</file>
 		<file alias="healgif">heal.gif</file>
 		<file alias="rapidfire">rapid_fire.png</file>
+		<file alias="rapidgif">rapid.gif</file>
 		<file alias="smoothAll">circle_wave.png</file>
 		<file alias="smoothEmpty">empty_circle_wave.png</file>
     	</qresource>

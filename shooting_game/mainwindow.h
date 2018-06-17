@@ -31,7 +31,7 @@ public:
 public slots:
     virtual void keyPressEvent(QKeyEvent *e);
     virtual void mousePressEvent(QMouseEvent *e);
-
+    virtual void keyReleaseEvent(QKeyEvent *e);
 
 private slots:
     void player_shoot();
@@ -115,6 +115,7 @@ private:
     bool superState;
 
     QMovie *heal_gif;
+    QMovie *rapid_gif;
 
     int score;
 };

@@ -1,5 +1,6 @@
 #include "bullet.h"
 #include <QtMath>
+#include <QDebug>
 
 Bullet::Bullet(int who, int dx, int dy){
     PorE = who;
@@ -8,8 +9,11 @@ Bullet::Bullet(int who, int dx, int dy){
     flyORresize = true;
     resizeORstay = true;
     flower = false;
+    notM = false;
+    star = false;
     count = 0;
     move = 0;
+    path = 0;
 }
 
 Bullet::Bullet(QPixmap Qp, int who, int dx, int dy):
@@ -19,36 +23,53 @@ Bullet::Bullet(QPixmap Qp, int who, int dx, int dy):
     flyORresize = true;
     resizeORstay = true;
     flower = false;
+    notM = false;
+    star = false;
     count = 0;
     move = 0;
+    path = 0;
 }
 
 void Bullet::fly(int mX, int mY, bool overplus){
-    /*int initX, initY;
-    initX = x();
-    initY = y();*/
 
-    double mmX = (double)mX/10;
-    double mmY = (double)mY/10;
+
+
+    double mmX = mX;// = (double)mX/10;
+    double mmY = mY;// = (double)mY/10;
     if(flower){
+        mmX += pX;
+        mmY += pY;
+        mmX = qCos(qDegreesToRadians(mmX))*10;
+        mmY = qSin(qDegreesToRadians(mmY))*10;
+        //qDebug() << QString::number(mmX) << QString::number(mmY);
         move += 1;
-        if(move < 50){
-            mmX *= (50-move)/50;
-            mmY *= (0-move)/50;
+        if(move < 30){
+            mmX *= (30-move)/30;
+            mmY *= (30-move)/30;
+            //qDebug() << QString::number(mmX) << QString::number(mmY);
+
         } else {
             move = 0;
+            flyORresize = false;
+            resizeORstay = false;
+            //qDebug() << QString::number(x())<<QString::number(y());
+            emit bulletFly(this);
+            return;
         }
     }
     if(flyORresize){ //fly
         if(PorE == 0){ //player shoot
             this -> setPos(x(), y() - 3);
         } else if(PorE == 1) {//enemy shoot
-            if(overplus){
+            if(notM){
+                this -> setPos(x() + pX, y() + pY);
+            } else if(overplus){
                 setPos(x() + mmX + pX, y() + mmY + pY);
             }else if(mmX != 0 || mmY != 0){
                 this -> setPos(x() + mmX, y() + mmY);
             }else{
                 this -> setPos(x() + pX, y() + pY);
+
             }
         }
 
@@ -66,13 +87,30 @@ void Bullet::fly(int mX, int mY, bool overplus){
         }
     } else {
         count++;
-        if(count > 10){
+        if(count > 10 && flower == false){
             resizeORstay = true;
             flyORresize = true;
         }
+        if(count > 5 && star == true){
+            flyORresize = true;
+            count = 0;
+            //initX = x();
+            //initY = y();
+        }
+        return;
     }
-
-    //move += pow(pow((x()-initX),2)+pow((y()-initY),2), 0.5);
+    /*if(star){
+        //path += pow(pow((x()-initX),2)+pow((y()-initY),2), 0.5);
+        //initX = x();
+        //initY = y();
+        if(y() <= 20 || y() + pixmap().height() >= 620 || x() <= 40 || x()+ pixmap().width() >= 440){
+            flyORresize = false;
+            resizeORstay = false;
+            //path = 0;
+        }
+    }*/
+    //path += pow(pow((x()-initX),2)+pow((y()-initY),2), 0.5);
+    //qDebug() << QString::number(path);
 
 }
 
@@ -131,6 +169,11 @@ void Bullet::MysetPos(Character *p, int posOfClock){
         setPos(p -> x() + p -> getW() / 2 - halfW, p -> y() - halfH*2);
         break;
     }
+
+    initX = x();
+    initY = y();
+
+    //qDebug() << "init"<<QString::number(initX) << " "<<QString::number(initY);
 }
 
 int Bullet::whoShot(){
@@ -139,4 +182,10 @@ int Bullet::whoShot(){
 
 int Bullet::getSpeed(){
     return s;
+}
+
+void Bullet::MysetPos(qreal x, qreal y){
+    setPos(x,y);
+    initX = this->x();
+    initY = this->y();
 }

@@ -18,10 +18,11 @@ MainWindow::MainWindow(QWidget *parent) :
     bullet_move_cycle(0),
     doubleShotState(0),
     level(1),
-    passlevel(7),
+    passlevel(8),
     stopState(true),
     smoothTimes(0),
     heal_gif(new QMovie(":/images/healgif")),
+    rapid_gif(new QMovie(":/images/rapidgif")),
     score(0)
 
     //levelmode(new QVBoxLayout(parent))
@@ -112,9 +113,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui -> level -> setText("Level " + QString::number(level));
 
 
-    ui -> playerSkill -> setMovie(heal_gif);
+
     connect(heal_gif, SIGNAL(frameChanged(int)), this, SLOT(frameChanged_Handler(int)));
+
     heal_gif -> setScaledSize(QSize(80,75));
+
 }
 
 MainWindow::~MainWindow()
@@ -144,14 +147,58 @@ void MainWindow::keyPressEvent(QKeyEvent *e)
         case Qt::Key_D:
             player -> myMove(10,0);
             break;
+        case Qt::Key_I:
+            ui -> heal ->click();
+            break;
+        case Qt::Key_U:
+            ui -> doubleshot ->click();
+            break;
+        case Qt::Key_O:
+            ui -> rapidfire -> click();
+            break;
+        case Qt::Key_M:
+            ui -> smoothAll -> click();
+            break;
+        case Qt::Key_Comma:
+            ui -> supertime -> click();
+            break;
         }
-        ui -> playerSkill -> setGeometry(player->x()-13, player->y()-12, 80, 75);
 
+        if(ui -> playerSkill -> movie() == rapid_gif){
+            ui -> playerSkill -> setGeometry(player->x()-140, player->y()-135, 206, 135);
+
+        } else if(ui -> playerSkill -> movie() == heal_gif){
+            ui -> playerSkill -> setGeometry(player->x()-13, player->y()-12, 80, 75);
+        }
     } else {
         e -> ignore();
     }
 }
 
+void MainWindow::keyReleaseEvent(QKeyEvent *e){
+    if(stopState == false && e -> key() == Qt::Key_J && e -> type() != e ->KeyPress){
+        bl.append(new Bullet(QPixmap(":/images/bullet1").scaled(5,20),0));
+        //b -> setPos(player->x() + player->getW() / 2 + b->pixmap().width(), player->y() - b->pixmap().height());
+        if(doubleShotState > 0)
+            bl.last() -> MysetPos(player, 11);
+        else
+            bl.last() -> MysetPos(player, 12);
+        bl.last() -> connect(timer, SIGNAL(timeout()), bl.last(), SLOT(fly()));
+        connect(bl.last(), SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+        scene->addItem(static_cast<QGraphicsPixmapItem*>(bl.last()));
+
+
+        if(doubleShotState > 0){
+            bl.append(new Bullet);
+            bl.last() -> MysetPixmap(QPixmap(":/images/bullet1").scaled(5,20));
+            //c -> setPos(player->x() + player->getW() / 2 - 2*c->pixmap().width(), player->y() - c->pixmap().height());
+            bl.last() -> MysetPos(player, 1);
+            bl.last() -> connect(timer, SIGNAL(timeout()), bl.last(), SLOT(fly()));
+            connect(bl.last(), SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+            scene->addItem(static_cast<QGraphicsPixmapItem*>(bl.last()));
+        }
+    }
+}
 void MainWindow::mousePressEvent(QMouseEvent *e)
 {
     if(stopState == false){
@@ -245,11 +292,97 @@ void MainWindow::checkHP(){
 }
 
 void MainWindow::hit(Bullet *b){
-    if(b->y() < 20 || b->y() > 620 || b->x() < 40 || b->x() > 440) {
+    int x[12] = {3, 4, 5, 4, 3, 0, -3, -4, -5, -4, -3, 0};
+    int y[12] = {-4, -3, 0, 3, 4, 5, 4, 3, 0, -3, -4, -5};
+
+    if(b->y() < 20 || b->y() + b-> pixmap().height()> 620 || b->x() < 40 || b->x()+b ->pixmap().width() > 440) {
+        if(level == 9 && b -> whoShot() == 1 && b -> star == true){
+            if(b -> y() < 20 || b->y() + b-> pixmap().height()> 620){
+                bl.append(new Bullet(QPixmap(":/images/bullet6").scaled(75,75), 1));
+                bl.last() -> MysetPos(b-> x() + b->pixmap().width()/2-bl.last()->pixmap().width()/2, b-> y() + b -> pixmap().height()/2-bl.last()->pixmap().height()/2);
+                bl.last() -> pX = b -> pX;
+                bl.last() -> pY = -(b -> pY);
+                bl.last() -> star = true;
+                bl.last() -> flyORresize = false;
+                bl.last() -> resizeORstay = false;
+                bl.last() -> connect(this, SIGNAL(bullet_track(int, int)), bl.last(), SLOT(fly(int,int)));
+                connect(bl.last(), SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+                scene->addItem(static_cast<QGraphicsPixmapItem*>(bl.last()));
+
+                for(int i = 0; i < 18; i++){
+                    bl.append(new Bullet(QPixmap(":/images/bullet2").scaled(25,25), 1));
+                    bl.last() -> MysetPos(b-> x() + b->pixmap().width()/2-bl.last()->pixmap().width()/2, b-> y() + b -> pixmap().height()/2-bl.last()->pixmap().height()/2);
+                    bl.last() -> pX = qCos(qDegreesToRadians((double)i*20))*5;
+                    bl.last() -> pY = qSin(qDegreesToRadians((double)i*20))*5;
+                    bl.last() -> connect(this, SIGNAL(bullet_track(int, int)), bl.last(), SLOT(fly(int,int)));
+                    connect(bl.last(), SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+                    scene->addItem(static_cast<QGraphicsPixmapItem*>(bl.last()));
+                    score+=10;
+                    ui -> score -> setText(QString::number(score));
+
+                }
+                for(int i = 0; i < 18; i++){
+                    bl.append(new Bullet(QPixmap(":/images/bullet2").scaled(25,25), 1));
+                    bl.last() -> MysetPos(b-> x() + b->pixmap().width()/2-bl.last()->pixmap().width()/2, b-> y() + b -> pixmap().height()/2-bl.last()->pixmap().height()/2);
+                    bl.last() -> pX = qCos(qDegreesToRadians((double)i*20))*5;
+                    bl.last() -> pY = qSin(qDegreesToRadians((double)i*20))*5;
+                    bl.last() -> flyORresize = false;
+                    bl.last() -> resizeORstay = false;
+                    bl.last() -> connect(this, SIGNAL(bullet_track(int, int)), bl.last(), SLOT(fly(int,int)));
+                    connect(bl.last(), SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+                    scene->addItem(static_cast<QGraphicsPixmapItem*>(bl.last()));
+                    score+=10;
+                    ui -> score -> setText(QString::number(score));
+
+                }
+
+            } else if(b->x() < 40 || b->x() +b ->pixmap().width()> 440){
+                bl.append(new Bullet(QPixmap(":/images/bullet6").scaled(75,75), 1));
+                bl.last() -> MysetPos(b-> x() + b->pixmap().width()/2-bl.last()->pixmap().width()/2, b-> y() + b -> pixmap().height()/2-bl.last()->pixmap().height()/2);
+                bl.last() -> pX = -(b -> pX);
+                bl.last() -> pY = b -> pY;
+                bl.last() -> star = true;
+                bl.last() -> flyORresize = false;
+                bl.last() -> resizeORstay = false;
+                bl.last() -> connect(this, SIGNAL(bullet_track(int, int)), bl.last(), SLOT(fly(int,int)));
+                connect(bl.last(), SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+                scene->addItem(static_cast<QGraphicsPixmapItem*>(bl.last()));
+
+                for(int i = 0; i < 18; i++){
+                    bl.append(new Bullet(QPixmap(":/images/bullet2").scaled(25,25), 1));
+                    bl.last() -> MysetPos(b-> x() + b->pixmap().width()/2-bl.last()->pixmap().width()/2, b-> y() + b -> pixmap().height()/2-bl.last()->pixmap().height()/2);
+                    bl.last() -> pX = qCos(qDegreesToRadians((double)i*20))*5;
+                    bl.last() -> pY = qSin(qDegreesToRadians((double)i*20))*5;
+                    bl.last() -> connect(this, SIGNAL(bullet_track(int, int)), bl.last(), SLOT(fly(int,int)));
+                    connect(bl.last(), SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+                    scene->addItem(static_cast<QGraphicsPixmapItem*>(bl.last()));
+                    score+=10;
+                    ui -> score -> setText(QString::number(score));
+
+                }
+                for(int i = 0; i < 18; i++){
+                    bl.append(new Bullet(QPixmap(":/images/bullet2").scaled(25,25), 1));
+                    bl.last() -> MysetPos(b-> x() + b->pixmap().width()/2-bl.last()->pixmap().width()/2, b-> y() + b -> pixmap().height()/2-bl.last()->pixmap().height()/2);
+                    bl.last() -> pX = qCos(qDegreesToRadians((double)i*20))*5;
+                    bl.last() -> pY = qSin(qDegreesToRadians((double)i*20))*5;
+                    bl.last() -> flyORresize = false;
+                    bl.last() -> resizeORstay = false;
+                    bl.last() -> connect(this, SIGNAL(bullet_track(int, int)), bl.last(), SLOT(fly(int,int)));
+                    connect(bl.last(), SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+                    scene->addItem(static_cast<QGraphicsPixmapItem*>(bl.last()));
+                    score+=10;
+                    ui -> score -> setText(QString::number(score));
+
+                }
+            }
+
+        }
+
         scene -> removeItem(b);
         bl.removeOne(b);
         delete b;
         return;
+
     }
     if(b->whoShot() == 0){ //player shot the bullet
         if(b->collidesWithItem(enemy)){
@@ -289,15 +422,39 @@ void MainWindow::hit(Bullet *b){
 
     } else if(b -> whoShot() == 1){ //enemy shot
 
-        if(b ->collidesWithItem(player)){
+
+        if(level == 8){
+            if(b -> flower == true && b -> flyORresize == false && b -> resizeORstay == false){
+                for(int i = 0; i < 6; i++){
+                    bl.append(new Bullet(QPixmap(":/images/bullet5").scaled(15,15), 1));
+                    bl.last() -> setPos(b-> x() + b->pixmap().width()/2-bl.last()->pixmap().width()/2, b-> y() + b -> pixmap().height()/2-bl.last()->pixmap().height()/2);
+                    //bl.last() -> pX = (enemy ->x()+enemy->getW()/2 - bl.last() ->x())/10;
+                    //bl.last() -> pY = (enemy ->y()+enemy->getH() - bl.last() ->y())/10;
+                    bl.last() -> pX = x[1+2*i];
+                    bl.last() -> pY = y[1+2*i];
+                    bl.last() -> notM = true;
+                    bl.last() -> connect(this, SIGNAL(bullet_track(int, int)), bl.last(), SLOT(fly(int,int)));
+                    connect(bl.last(), SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+                    scene->addItem(static_cast<QGraphicsPixmapItem*>(bl.last()));
+                    score+=10;
+                    ui -> score -> setText(QString::number(score));
+
+                }
+
+
+                scene -> removeItem(b);
+                bl.removeOne(b);
+                delete b;
+                return;
+            }
+        }
+        if(b ->collidesWithItem(player) && b -> star == false){
             player -> damage(1);
             if(level == 7){
                 bl.append(new Bullet(QPixmap(":/images/ash").scaled(b->pixmap().width(),b->pixmap().height())));
                 bl.last() -> setPos(b->x(),b->y());
                 scene -> addItem(bl.last());
 
-                int x[12] = {3, 4, 5, 4, 3, 0, -3, -4, -5, -4, -3, 0};
-                int y[12] = {-4, -3, 0, 3, 4, 5, 4, 3, 0, -3, -4, -5};
                 if(b -> pixmap().height() -20 > 0){
                     for(int i = 0; i < 12; i++){
 
@@ -312,7 +469,7 @@ void MainWindow::hit(Bullet *b){
                         bl.last() -> connect(this, SIGNAL(bullet_track(int, int)), bl.last(), SLOT(fly(int,int)));
                         connect(bl.last(), SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
                         scene->addItem(static_cast<QGraphicsPixmapItem*>(bl.last()));
-                        score+=5;
+                        score+=10;
                         ui -> score -> setText(QString::number(score));
 
                     }
@@ -321,7 +478,7 @@ void MainWindow::hit(Bullet *b){
             scene -> removeItem(b);
             bl.removeOne(b);
             delete b;
-        }else if(b->collidesWithItem(player ->skill)){
+        }else if(b->collidesWithItem(player ->skill) && b -> star == false){
             scene -> removeItem(b);
             bl.removeOne(b);
             delete b;
@@ -382,12 +539,30 @@ void MainWindow::on_start_clicked()
     } else if(level == 7){
         static_cast<Enemy*>(enemy) -> setGifvisible(true);
         static_cast<Enemy*>(enemy) -> label -> movie() -> start();
+    } else if(level == 9){
+        bl.append(new Bullet(QPixmap(":/images/bullet6").scaled(75, 75), 1, 10, 10));
+        bl.last() -> MysetPos(enemy,6);
+        bl.last() -> star = true;
+        bl.last() -> connect(this,SIGNAL(bullet_track(int,int,bool)), bl.last(), SLOT(fly(int,int,bool)));
+        connect(bl.last(), SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+        scene->addItem(static_cast<QGraphicsPixmapItem*>(bl.last()));
+
+        score+=10;
+        ui -> score -> setText(QString::number(score));
     }
 
 
     scene->addItem(player -> skill);
 
     smoothTimes = 5;
+    ui -> smooth_cd5 -> setPixmap(QPixmap(":/images/smoothAll").scaled(10,10));
+    ui -> smooth_cd4 -> setPixmap(QPixmap(":/images/smoothAll").scaled(10,10));
+    ui -> smooth_cd3 -> setPixmap(QPixmap(":/images/smoothAll").scaled(10,10));
+    ui -> smooth_cd2 -> setPixmap(QPixmap(":/images/smoothAll").scaled(10,10));
+    ui -> smooth_cd1 -> setPixmap(QPixmap(":/images/smoothAll").scaled(10,10));
+    ui -> smoothAll -> setEnabled(true);
+
+
 
     score = 0;
 }
@@ -421,7 +596,6 @@ void MainWindow::on_pause_clicked()
 
         ui -> pause -> setText("pause");
         stopState = false;
-        static_cast<Enemy*>(enemy) -> label -> movie()->start();
         if(level == 5 || level == 7)
             static_cast<Enemy*>(enemy) -> label -> movie()->start();
         for(int i = 0; i < small_enemy.size(); i++){
@@ -525,20 +699,35 @@ void MainWindow::enemy_shoot(){
         }
 
     } else if(level == 8){
-        //1
-        bl.append(new Bullet(QPixmap(":/images/bullet4").scaled(50, 50), 1,5,5));
-        bl.last() -> MysetPos(enemy,6);
-        bl.last() -> flower = true;
+        for(int i = 0; i < 6; ++i){
+            bl.append(new Bullet(QPixmap(":/images/bullet2").scaled(25, 25), 1, 60*i, 60*i));
+            bl.last() -> MysetPos(enemy,6);
+            bl.last() -> flower = true;
 
-        bl.last() -> connect(this,SIGNAL(bullet_track(int,int,bool)), bl.last(), SLOT(fly(int,int,bool)));
-        connect(bl.last(), SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
-        scene->addItem(static_cast<QGraphicsPixmapItem*>(bl.last()));
+            bl.last() -> connect(this,SIGNAL(bullet_track(int,int,bool)), bl.last(), SLOT(fly(int,int,bool)));
+            connect(bl.last(), SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+            scene->addItem(static_cast<QGraphicsPixmapItem*>(bl.last()));
 
-        score+=50;
-        ui -> score -> setText(QString::number(score));
-
+            score+=10;
+            ui -> score -> setText(QString::number(score));
+        }
     } else if(level == 9){
-
+        static int buEm;
+        buEm++;
+        if(buEm == 5){
+        for(int i = 0; i < 24; i++){
+            bl.append(new Bullet(QPixmap(":/images/bullet3").scaled(15,15), 1));
+            bl.last() -> MysetPos(enemy, 6);
+            bl.last() -> pX = qCos(qDegreesToRadians((double)i*15))*5;
+            bl.last() -> pY = qSin(qDegreesToRadians((double)i*15))*5;
+            bl.last() -> connect(this, SIGNAL(bullet_track(int, int)), bl.last(), SLOT(fly(int,int)));
+            connect(bl.last(), SIGNAL(bulletFly(Bullet*)), this, SLOT(hit(Bullet*)));
+            scene->addItem(static_cast<QGraphicsPixmapItem*>(bl.last()));
+            score+=10;
+            ui -> score -> setText(QString::number(score));
+            buEm = 0;
+        }
+        }
     }
 
 
@@ -596,7 +785,7 @@ void MainWindow::on_stop_clicked()
     }
 
     if(level == 7){
-        static_cast<Enemy*>(enemy) -> label -> movie() -> start();
+        static_cast<Enemy*>(enemy) -> label -> movie() -> stop();
     }
 }
 
@@ -658,13 +847,20 @@ void MainWindow::bullet_track_control(){
         emit bullet_track(0,0, false);
 
     } else if(level == 8){
-        double x;
+        //double x;
+        if(bullet_move_cycle == 80){
+            bullet_move_cycle = 0;
+        }
+        //x = qDegreesToRadians((double)bullet_move_cycle+30);
 
-        x = qDegreesToRadians((double)bullet_move_cycle);
-
-        //if(bullet_move_cycle<30){
-            emit bullet_track(qCos(x)*100,qSin(x)*100, false);
-        //}
+        if(bullet_move_cycle <= 40){
+            //emit bullet_track(qCos(x)*100,qSin(x)*100, true);
+            emit bullet_track(bullet_move_cycle, bullet_move_cycle,false);
+        } else {
+            //x = qDegreesToRadians(90 -(double)bullet_move_cycle);
+            //emit bullet_track(qCos(x)*100,qSin(x)*100, true);
+            emit bullet_track(80 - bullet_move_cycle, 80 - bullet_move_cycle,false);
+        }
     } else {
         emit bullet_track(0,0);
     }
@@ -758,11 +954,11 @@ void MainWindow::level_choose(int level){
     case 5:
         //enemy->setImage(QPixmap(":/images/boss3"), 150);
         static_cast<Enemy*>(enemy) -> setGif(movie,150,195/2.5);
-        static_cast<Enemy*>(enemy) -> initial(150,50,150,100,QPixmap(":/images/bat_simple"));
+        static_cast<Enemy*>(enemy) -> initial(150,50,150,200,QPixmap(":/images/bat_simple"));
         static_cast<Enemy*>(enemy) -> setGifvisible(false);
         break;
     case 6:
-        static_cast<Enemy*>(enemy) -> initial(150,50,150,100,QPixmap(":/images/boss"));
+        static_cast<Enemy*>(enemy) -> initial(150,50,150,200,QPixmap(":/images/boss"));
         if(small_enemy.size() < 1)
             small_enemy.append(new Enemy(this));
         if(small_enemy.size() < 2)
@@ -777,12 +973,14 @@ void MainWindow::level_choose(int level){
         movie->setFileName(":/images/bossgif");
         static_cast<Enemy*>(enemy) -> setGif(movie,150,150);
         enemy->setImage(QPixmap(),150);
-        static_cast<Enemy*>(enemy) -> initial(150,100,150,100,QPixmap(":/images/bossgif_simple"));
+        static_cast<Enemy*>(enemy) -> initial(150,100,150,200,QPixmap(":/images/bossgif_simple"));
         break;
     case 8:
-        static_cast<Enemy*>(enemy) -> initial(150,50,150,100,QPixmap(":/images/boss3"));
+        static_cast<Enemy*>(enemy) -> initial(150,50,150,300,QPixmap(":/images/boss3"));
         break;
-
+    case 9:
+        static_cast<Enemy*>(enemy) -> initial(150,50,150,400,QPixmap(":/images/boss2"));
+        break;
     }
     toplayMode();
     ui -> level -> setText("Level " + QString::number(level));
@@ -825,6 +1023,7 @@ void MainWindow::check_skill_cd(){
     if(rapidFireState == 3){
         rapidFireState = 0;
         disconnect(timerRF, SIGNAL(timeout()), this, SLOT(player_shoot()));
+        ui -> playerSkill -> setVisible(false);
     } else if(rapidFireState > 0){
         rapidFireState += 1;
     } else if(ui -> rapidfire_cd -> value() < 30){
@@ -837,21 +1036,7 @@ void MainWindow::check_skill_cd(){
         ui -> rapidfire_cd -> setPalette(pal);
     }
 
-    switch(smoothTimes){
-    case 0:ui -> smooth_cd1 -> setPixmap(QPixmap(":/images/smoothEmpty").scaled(10,10));
-            ui -> smoothAll -> setEnabled(false);
-    case 1:ui -> smooth_cd2 -> setPixmap(QPixmap(":/images/smoothEmpty").scaled(10,10));
-    case 2:ui -> smooth_cd3 -> setPixmap(QPixmap(":/images/smoothEmpty").scaled(10,10));
-    case 3:ui -> smooth_cd4 -> setPixmap(QPixmap(":/images/smoothEmpty").scaled(10,10));
-    case 4:ui -> smooth_cd5 -> setPixmap(QPixmap(":/images/smoothEmpty").scaled(10,10));
-          break;
-    case 5:ui -> smooth_cd5 -> setPixmap(QPixmap(":/images/smoothAll").scaled(10,10));
-        ui -> smooth_cd4 -> setPixmap(QPixmap(":/images/smoothAll").scaled(10,10));
-        ui -> smooth_cd3 -> setPixmap(QPixmap(":/images/smoothAll").scaled(10,10));
-        ui -> smooth_cd2 -> setPixmap(QPixmap(":/images/smoothAll").scaled(10,10));
-        ui -> smooth_cd1 -> setPixmap(QPixmap(":/images/smoothAll").scaled(10,10));
-        ui -> smoothAll -> setEnabled(true);
-    }
+
 }
 
 void MainWindow::on_doubleshot_clicked()
@@ -872,7 +1057,7 @@ void MainWindow::on_heal_clicked()
     //ui -> playerSkill -> setGeometry(player->x()-12, player->y()-12, 75, 75);
 
 
-
+    ui -> playerSkill -> setMovie(heal_gif);
     heal_gif -> start();
     //qDebug()<<heal_gif ->loopCount();
 
@@ -907,6 +1092,11 @@ void MainWindow::on_rapidfire_clicked()
     connect(timerRF, SIGNAL(timeout()), this, SLOT(player_shoot()));
     ui -> rapidfire_cd -> setValue(0);
 
+    //ui -> playerSkill -> setGeometry(player->x()-120, player->y()-135, 206, 135);
+    ui -> playerSkill -> setVisible(true);
+    ui -> playerSkill -> setMovie(rapid_gif);
+
+    rapid_gif -> start();
 }
 
 void MainWindow::on_smoothAll_clicked()
@@ -919,6 +1109,18 @@ void MainWindow::on_smoothAll_clicked()
 
 
     connect(timerRF, SIGNAL(timeout()), this, SLOT(circle_wave_emit()));
+
+    switch(smoothTimes){
+    case 0:ui -> smooth_cd1 -> setPixmap(QPixmap(":/images/smoothEmpty").scaled(10,10));
+            ui -> smoothAll -> setEnabled(false);
+    case 1:ui -> smooth_cd2 -> setPixmap(QPixmap(":/images/smoothEmpty").scaled(10,10));
+    case 2:ui -> smooth_cd3 -> setPixmap(QPixmap(":/images/smoothEmpty").scaled(10,10));
+    case 3:ui -> smooth_cd4 -> setPixmap(QPixmap(":/images/smoothEmpty").scaled(10,10));
+    case 4:ui -> smooth_cd5 -> setPixmap(QPixmap(":/images/smoothEmpty").scaled(10,10));
+          break;
+
+    }
+
 }
 
 void MainWindow::circle_wave_emit(){

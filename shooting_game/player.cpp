@@ -14,10 +14,10 @@ Player::Player()
 }
 
 void Player::myMove(int x, int y){
-    if(this->y() + y > 20 && this->y() + y < 620){
+    if(this->y() + y > 20 && this->y() + y + getH()< 620){
         setY(this->y() + y);
     }
-    if(this->x() + x > 40 && this->x() + x < 440) {
+    if(this->x() + x > 40 && this->x() + x + getW()< 440) {
         setX(this->x() + x);
     }
 }
